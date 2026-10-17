@@ -1,0 +1,8 @@
+{
+ "sha256": "40d5dd95b0f9de9ca23ff4c6b9aeb3e281e4de3a8b832cf136f8d1916a2f27a4",
+ "frozen_at": "2026-10-17T16:19:54+08:00",
+ "plan_file": "tests/fixtures/plans/frozen_then_edited.json",
+ "test_years": [
+  2024
+ ]
+}

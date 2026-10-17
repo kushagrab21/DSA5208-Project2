@@ -1,0 +1,243 @@
+=== qualification run 2026-10-17T14:34:27+08:00 ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6']
+QUALIFY Q1 ingest_check on raw Parquet without 2017: REFUSED as required -> qualified
+    ENV run=20261017T143429-ingest_check job=ingest_check spark=4.0.4 java=17.0.20.1 python=3.11.17 master=local[10] executors=1 cores=10 memory=10g host=Apple M5/10cpu/16GiB/macOS 26.5.1
+    INGEST year=2017 MISSING
+    INGEST year=2018 rows=4594246 csv_lines=None stations=56 first=2018-01-01T00:00:00+08:00 last=2018-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2019 rows=5026862 csv_lines=None stations=54 first=2019-01-01T00:00:00+08:00 last=2019-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2020 rows=6334473 csv_lines=None stations=80 first=2020-01-01T00:00:00+08:00 last=2020-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2021 rows=7044646 csv_lines=None stations=76 first=2021-01-01T00:00:00+08:00 last=2021-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2022 rows=7133230 csv_lines=None stations=72 first=2022-01-01T00:00:00+08:00 last=2022-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2023 rows=6742890 csv_lines=None stations=74 first=2023-01-01T00:00:00+08:00 last=2023-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2024 rows=6406260 csv_lines=None stations=70 first=2024-01-01T00:00:00+08:00 last=2024-12-31T23:55:00+08:00 corrupt_records=0
+    MISSING YEARS: 1 [2017]
+    INGEST CHECK: REFUSED
+QUALIFY Q2 clean_ledger with one unmapped row: REFUSED as required -> qualified
+    ENV run=20261017T143444-clean_ledger job=clean_ledger spark=4.0.4 java=17.0.20.1 python=3.11.17 master=local[10] executors=1 cores=10 memory=10g host=Apple M5/10cpu/16GiB/macOS 26.5.1
+    CLEAN rule=corrupt removed=0 of 48538713
+    CLEAN rule=missing removed=0 of 48538713
+    CLEAN rule=type_unit removed=0 of 48538713
+    CLEAN rule=bad_ts removed=0 of 48538713
+    CLEAN rule=year_mismatch removed=0 of 48538713
+    CLEAN rule=negative removed=0 of 48538713
+    CLEAN rule=implausible removed=0 of 48538713
+    CLEAN rule=snap removed=0 of 48538713 adjusted=1775327
+    CLEAN rule=snap_year_cross removed=0 of 48538713
+    CLEAN rule=duplicate removed=85 of 48538713
+    CLEAN raw_rows=48538713 clean_rows=48538627 removed_by_rules=85 unmapped_rows=1
+    CLEAN null_keys=0 duplicate_station_slots=0
+    CLEAN PROBLEM: 1 rows differ between the ledger and the cleaned data (unmapped)
+    CLEAN LEDGER: REFUSED
+QUALIFY Q3 eval_plan freeze of a random split: REFUSED as required -> qualified
+    EVAL PLAN PROBLEM: split method must be 'by_year' (time-ordered), got 'randomSplit'; a random split puts neighbouring 5-minute rows of one storm in both training and evaluation
+    EVAL PLAN PROBLEM: split years overlap: train&val=[2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024] train&test=[2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024] val&test=[2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
+    EVAL PLAN PROBLEM: years must be ordered: all train < all validation < all test
+    EVAL PLAN: REFUSED (not frozen)
+QUALIFY Q4 eval_plan verify after editing a frozen plan: REFUSED as required -> qualified
+    EVAL PLAN frozen sha256=40d5dd95b0f9de9ca23ff4c6b9aeb3e281e4de3a8b832cf136f8d1916a2f27a4 at 2026-10-17T14:34:59+08:00
+    EVAL PLAN PROBLEM: plan sha256=e0d90d186b4ceccde208325a39d4c65e49a35c293024f3bcdf44d8c37fa84a59 differs from frozen sha256=40d5dd95b0f9de9ca23ff4c6b9aeb3e281e4de3a8b832cf136f8d1916a2f27a4
+    EVAL PLAN: REFUSED
+    load_frozen_plan raised PlanError: evaluation plan is not frozen or has changed; refusing to continue
+QUALIFY Q5 a second evaluation of the test years: REFUSED as required -> qualified
+    first claim_test_run: accepted (fixture plan)
+    second claim_test_run raised PlanError: the test years were already evaluated at 2026-10-17T14:34:59+08:00 under plan 40d5dd95b0f9de9ca23ff4c6b9aeb3e281e4de3a8b832cf136f8d1916a2f27a4; the test set is evaluated once
+QUALIFY Q6 a fitting table containing a 2024 row: REFUSED as required -> qualified
+    guard_no_test_rows raised PlanError: a table used for fitting or tuning contains rows from test years [2024]; refusing
+    same table without the 2024 row: accepted
+QUALIFY SUMMARY: all refused as required
+=== qualification run 2026-10-17T14:41:36+08:00 ['Q7']
+QUALIFY Q7 requirements_check: good .tex passes; hand-typed number and unmapped E5 refused: NOT REFUSED -> NOT qualified
+    [good.tex] REQ hand-typed numbers in body: 2
+    [good.tex] REQ PROBLEM: 2 hand-typed numbers
+    [good.tex] REQUIREMENTS CHECK: REFUSED (no release)
+    [hand_typed_number.tex] REQ hand-typed numbers in body: 2
+    [hand_typed_number.tex] REQ PROBLEM: 2 hand-typed numbers
+    [hand_typed_number.tex] REQUIREMENTS CHECK: REFUSED (no release)
+    [unmapped_row.tex] REQ E5  Changes across 2017-2024, coverage-adjusted      -> UNMAPPED
+    [unmapped_row.tex] REQ PROBLEM: E5 unmapped
+    [unmapped_row.tex] REQUIREMENTS CHECK: REFUSED (no release)
+QUALIFY SUMMARY: NOT qualified: ['Q7']
+=== qualification run 2026-10-17T14:41:51+08:00 ['Q7']
+QUALIFY Q7 requirements_check: good .tex passes; hand-typed number and unmapped E5 refused: REFUSED as required -> qualified
+    [good.tex] REQ hand-typed numbers in body: 0
+    [good.tex] REQUIREMENTS CHECK: PASS
+    [hand_typed_number.tex] REQ hand-typed numbers in body: 1
+    [hand_typed_number.tex] REQ PROBLEM: 1 hand-typed numbers
+    [hand_typed_number.tex] REQUIREMENTS CHECK: REFUSED (no release)
+    [unmapped_row.tex] REQ E5  Changes across 2017-2024, coverage-adjusted      -> UNMAPPED
+    [unmapped_row.tex] REQ PROBLEM: E5 unmapped
+    [unmapped_row.tex] REQUIREMENTS CHECK: REFUSED (no release)
+QUALIFY SUMMARY: all refused as required
+=== qualification run 2026-10-17T15:13:49+08:00 ['Q7']
+QUALIFY Q7 requirements_check: good .tex passes; hand-typed number and unmapped E5 refused: REFUSED as required -> qualified
+    [good.tex] REQ hand-typed numbers in body: 0
+    [good.tex] REQUIREMENTS CHECK: PASS
+    [hand_typed_number.tex] REQ hand-typed numbers in body: 1
+    [hand_typed_number.tex] REQ PROBLEM: 1 hand-typed numbers
+    [hand_typed_number.tex] REQUIREMENTS CHECK: REFUSED (no release)
+    [unmapped_row.tex] REQ E5  Changes across 2017-2024, coverage-adjusted      -> UNMAPPED
+    [unmapped_row.tex] REQ PROBLEM: E5 unmapped
+    [unmapped_row.tex] REQUIREMENTS CHECK: REFUSED (no release)
+QUALIFY SUMMARY: all refused as required
+=== qualification run 2026-10-17T15:20:39+08:00 ['Q7']
+QUALIFY Q7 requirements_check: good .tex passes; hand-typed number and unmapped E5 refused: REFUSED as required -> qualified
+    [good.tex] REQ hand-typed numbers in body: 0
+    [good.tex] REQUIREMENTS CHECK: PASS
+    [hand_typed_number.tex] REQ hand-typed numbers in body: 1
+    [hand_typed_number.tex] REQ PROBLEM: 1 hand-typed numbers
+    [hand_typed_number.tex] REQUIREMENTS CHECK: REFUSED (no release)
+    [unmapped_row.tex] REQ E5  Changes across 2017-2024, coverage-adjusted      -> UNMAPPED
+    [unmapped_row.tex] REQ PROBLEM: E5 unmapped
+    [unmapped_row.tex] REQUIREMENTS CHECK: REFUSED (no release)
+QUALIFY SUMMARY: all refused as required
+=== qualification run 2026-10-17T15:22:33+08:00 ['Q7']
+QUALIFY Q7 requirements_check: good .tex passes; hand-typed number and unmapped E5 refused: REFUSED as required -> qualified
+    [good.tex] REQ hand-typed numbers in body: 0
+    [good.tex] REQUIREMENTS CHECK: PASS
+    [hand_typed_number.tex] REQ hand-typed numbers in body: 1
+    [hand_typed_number.tex] REQ PROBLEM: 1 hand-typed numbers
+    [hand_typed_number.tex] REQUIREMENTS CHECK: REFUSED (no release)
+    [unmapped_row.tex] REQ E5  Changes across 2017-2024, coverage-adjusted      -> UNMAPPED
+    [unmapped_row.tex] REQ PROBLEM: E5 unmapped
+    [unmapped_row.tex] REQUIREMENTS CHECK: REFUSED (no release)
+QUALIFY SUMMARY: all refused as required
+=== qualification run 2026-10-17T15:44:39+08:00 ['Q7']
+QUALIFY Q7 requirements_check: good .tex passes; hand-typed number and unmapped E5 refused: REFUSED as required -> qualified
+    [good.tex] REQ hand-typed numbers in body: 0
+    [good.tex] REQUIREMENTS CHECK: PASS
+    [hand_typed_number.tex] REQ hand-typed numbers in body: 1
+    [hand_typed_number.tex] REQ PROBLEM: 1 hand-typed numbers
+    [hand_typed_number.tex] REQUIREMENTS CHECK: REFUSED (no release)
+    [unmapped_row.tex] REQ E5  Changes across 2017-2024, coverage-adjusted      -> UNMAPPED
+    [unmapped_row.tex] REQ PROBLEM: E5 unmapped
+    [unmapped_row.tex] REQUIREMENTS CHECK: REFUSED (no release)
+    [undefined_value.tex] REQ generated values used: 1; undefined: 1 ['no_such_key']
+    [undefined_value.tex] REQUIREMENTS CHECK: REFUSED (no release)
+QUALIFY SUMMARY: all refused as required
+=== qualification run 2026-10-17T15:44:44+08:00 ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7']
+QUALIFY Q1 ingest_check on raw Parquet without 2017: REFUSED as required -> qualified
+    ENV run=qualify-20261017T154444-ingest_check job=ingest_check spark=4.0.4 java=17.0.20.1 python=3.11.17 master=local[10] executors=1 cores=10 memory=10g host=Apple M5/10cpu/16GiB/macOS 26.5.1
+    INGEST year=2017 MISSING
+    INGEST year=2018 rows=4594246 csv_lines=None stations=56 first=2018-01-01T00:00:00+08:00 last=2018-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2019 rows=5026862 csv_lines=None stations=54 first=2019-01-01T00:00:00+08:00 last=2019-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2020 rows=6334473 csv_lines=None stations=80 first=2020-01-01T00:00:00+08:00 last=2020-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2021 rows=7044646 csv_lines=None stations=76 first=2021-01-01T00:00:00+08:00 last=2021-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2022 rows=7133230 csv_lines=None stations=72 first=2022-01-01T00:00:00+08:00 last=2022-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2023 rows=6742890 csv_lines=None stations=74 first=2023-01-01T00:00:00+08:00 last=2023-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2024 rows=6406260 csv_lines=None stations=70 first=2024-01-01T00:00:00+08:00 last=2024-12-31T23:55:00+08:00 corrupt_records=0
+    MISSING YEARS: 1 [2017]
+    INGEST CHECK: REFUSED
+QUALIFY Q2 clean_ledger with one unmapped row: REFUSED as required -> qualified
+    ENV run=qualify-20261017T154502-clean_ledger job=clean_ledger spark=4.0.4 java=17.0.20.1 python=3.11.17 master=local[10] executors=1 cores=10 memory=10g host=Apple M5/10cpu/16GiB/macOS 26.5.1
+    CLEAN rule=corrupt removed=0 of 48538713
+    CLEAN rule=missing removed=0 of 48538713
+    CLEAN rule=type_unit removed=0 of 48538713
+    CLEAN rule=bad_ts removed=0 of 48538713
+    CLEAN rule=year_mismatch removed=0 of 48538713
+    CLEAN rule=negative removed=0 of 48538713
+    CLEAN rule=implausible removed=0 of 48538713
+    CLEAN rule=snap removed=0 of 48538713 adjusted=1775327
+    CLEAN rule=snap_year_cross removed=0 of 48538713
+    CLEAN rule=duplicate removed=85 of 48538713
+    CLEAN raw_rows=48538713 clean_rows=48538627 removed_by_rules=85 unmapped_rows=1
+    CLEAN null_keys=0 duplicate_station_slots=0
+    CLEAN PROBLEM: 1 rows differ between the ledger and the cleaned data (unmapped)
+    CLEAN LEDGER: REFUSED
+QUALIFY Q3 eval_plan freeze of a random split: REFUSED as required -> qualified
+    EVAL PLAN PROBLEM: split method must be 'by_year' (time-ordered), got 'randomSplit'; a random split puts neighbouring 5-minute rows of one storm in both training and evaluation
+    EVAL PLAN PROBLEM: split years overlap: train&val=[2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024] train&test=[2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024] val&test=[2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
+    EVAL PLAN PROBLEM: years must be ordered: all train < all validation < all test
+    EVAL PLAN: REFUSED (not frozen)
+QUALIFY Q4 eval_plan verify after editing a frozen plan: REFUSED as required -> qualified
+    EVAL PLAN frozen sha256=40d5dd95b0f9de9ca23ff4c6b9aeb3e281e4de3a8b832cf136f8d1916a2f27a4 at 2026-10-17T15:45:25+08:00
+    EVAL PLAN PROBLEM: plan sha256=e0d90d186b4ceccde208325a39d4c65e49a35c293024f3bcdf44d8c37fa84a59 differs from frozen sha256=40d5dd95b0f9de9ca23ff4c6b9aeb3e281e4de3a8b832cf136f8d1916a2f27a4
+    EVAL PLAN: REFUSED
+    load_frozen_plan raised PlanError: evaluation plan is not frozen or has changed; refusing to continue
+QUALIFY Q5 a second evaluation of the test years: REFUSED as required -> qualified
+    first claim_test_run: accepted (fixture plan)
+    second claim_test_run raised PlanError: the test years were already evaluated at 2026-10-17T15:45:25+08:00 under plan 40d5dd95b0f9de9ca23ff4c6b9aeb3e281e4de3a8b832cf136f8d1916a2f27a4; the test set is evaluated once
+QUALIFY Q6 a fitting table containing a 2024 row: REFUSED as required -> qualified
+    guard_no_test_rows raised PlanError: a table used for fitting or tuning contains rows from test years [2024]; refusing
+    same table without the 2024 row: accepted
+QUALIFY Q7 requirements_check: good .tex passes; hand-typed number and unmapped E5 refused: REFUSED as required -> qualified
+    [good.tex] REQ hand-typed numbers in body: 0
+    [good.tex] REQUIREMENTS CHECK: PASS
+    [hand_typed_number.tex] REQ hand-typed numbers in body: 1
+    [hand_typed_number.tex] REQ PROBLEM: 1 hand-typed numbers
+    [hand_typed_number.tex] REQUIREMENTS CHECK: REFUSED (no release)
+    [unmapped_row.tex] REQ E5  Changes across 2017-2024, coverage-adjusted      -> UNMAPPED
+    [unmapped_row.tex] REQ PROBLEM: E5 unmapped
+    [unmapped_row.tex] REQUIREMENTS CHECK: REFUSED (no release)
+    [undefined_value.tex] REQ generated values used: 1; undefined: 1 ['no_such_key']
+    [undefined_value.tex] REQUIREMENTS CHECK: REFUSED (no release)
+QUALIFY SUMMARY: all refused as required
+=== qualification run 2026-10-17T16:17:04+08:00 ['Q8']
+QUALIFY Q8 cloud_parity: identical outputs pass; one count off refused: REFUSED as required -> qualified
+    [same] PARITY exact mismatches: 0
+    [same] PARITY: PASS
+    [one_count_off] PARITY exact mismatches: 1
+    [one_count_off]     coverage/coverage_by_year.csv.slots: 1 counts differ
+    [one_count_off] PARITY: MISMATCH
+QUALIFY SUMMARY: all refused as required
+=== qualification run 2026-10-17T16:19:16+08:00 ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7', 'Q8']
+QUALIFY Q1 ingest_check on raw Parquet without 2017: REFUSED as required -> qualified
+    ENV run=qualify-20261017T161916-ingest_check job=ingest_check spark=4.0.4 java=17.0.20.1 python=3.11.17 master=local[10] executors=1 cores=10 memory=10g host=Apple M5/10cpu/16GiB/macOS 26.5.1
+    INGEST year=2017 MISSING
+    INGEST year=2018 rows=4594246 csv_lines=None stations=56 first=2018-01-01T00:00:00+08:00 last=2018-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2019 rows=5026862 csv_lines=None stations=54 first=2019-01-01T00:00:00+08:00 last=2019-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2020 rows=6334473 csv_lines=None stations=80 first=2020-01-01T00:00:00+08:00 last=2020-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2021 rows=7044646 csv_lines=None stations=76 first=2021-01-01T00:00:00+08:00 last=2021-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2022 rows=7133230 csv_lines=None stations=72 first=2022-01-01T00:00:00+08:00 last=2022-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2023 rows=6742890 csv_lines=None stations=74 first=2023-01-01T00:00:00+08:00 last=2023-12-31T23:55:00+08:00 corrupt_records=0
+    INGEST year=2024 rows=6406260 csv_lines=None stations=70 first=2024-01-01T00:00:00+08:00 last=2024-12-31T23:55:00+08:00 corrupt_records=0
+    MISSING YEARS: 1 [2017]
+    INGEST CHECK: REFUSED
+QUALIFY Q2 clean_ledger with one unmapped row: REFUSED as required -> qualified
+    ENV run=qualify-20261017T161935-clean_ledger job=clean_ledger spark=4.0.4 java=17.0.20.1 python=3.11.17 master=local[10] executors=1 cores=10 memory=10g host=Apple M5/10cpu/16GiB/macOS 26.5.1
+    CLEAN rule=corrupt removed=0 of 48538713
+    CLEAN rule=missing removed=0 of 48538713
+    CLEAN rule=type_unit removed=0 of 48538713
+    CLEAN rule=bad_ts removed=0 of 48538713
+    CLEAN rule=year_mismatch removed=0 of 48538713
+    CLEAN rule=negative removed=0 of 48538713
+    CLEAN rule=implausible removed=0 of 48538713
+    CLEAN rule=snap removed=0 of 48538713 adjusted=1775327
+    CLEAN rule=snap_year_cross removed=0 of 48538713
+    CLEAN rule=duplicate removed=85 of 48538713
+    CLEAN raw_rows=48538713 clean_rows=48538627 removed_by_rules=85 unmapped_rows=1
+    CLEAN null_keys=0 duplicate_station_slots=0
+    CLEAN PROBLEM: 1 rows differ between the ledger and the cleaned data (unmapped)
+    CLEAN LEDGER: REFUSED
+QUALIFY Q3 eval_plan freeze of a random split: REFUSED as required -> qualified
+    EVAL PLAN PROBLEM: split method must be 'by_year' (time-ordered), got 'randomSplit'; a random split puts neighbouring 5-minute rows of one storm in both training and evaluation
+    EVAL PLAN PROBLEM: split years overlap: train&val=[2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024] train&test=[2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024] val&test=[2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
+    EVAL PLAN PROBLEM: years must be ordered: all train < all validation < all test
+    EVAL PLAN: REFUSED (not frozen)
+QUALIFY Q4 eval_plan verify after editing a frozen plan: REFUSED as required -> qualified
+    EVAL PLAN frozen sha256=40d5dd95b0f9de9ca23ff4c6b9aeb3e281e4de3a8b832cf136f8d1916a2f27a4 at 2026-10-17T16:19:54+08:00
+    EVAL PLAN PROBLEM: plan sha256=e0d90d186b4ceccde208325a39d4c65e49a35c293024f3bcdf44d8c37fa84a59 differs from frozen sha256=40d5dd95b0f9de9ca23ff4c6b9aeb3e281e4de3a8b832cf136f8d1916a2f27a4
+    EVAL PLAN: REFUSED
+    load_frozen_plan raised PlanError: evaluation plan is not frozen or has changed; refusing to continue
+QUALIFY Q5 a second evaluation of the test years: REFUSED as required -> qualified
+    first claim_test_run: accepted (fixture plan)
+    second claim_test_run raised PlanError: the test years were already evaluated at 2026-10-17T16:19:54+08:00 under plan 40d5dd95b0f9de9ca23ff4c6b9aeb3e281e4de3a8b832cf136f8d1916a2f27a4; the test set is evaluated once
+QUALIFY Q6 a fitting table containing a 2024 row: REFUSED as required -> qualified
+    guard_no_test_rows raised PlanError: a table used for fitting or tuning contains rows from test years [2024]; refusing
+    same table without the 2024 row: accepted
+QUALIFY Q7 requirements_check: good .tex passes; hand-typed number and unmapped E5 refused: REFUSED as required -> qualified
+    [good.tex] REQ hand-typed numbers in body: 0
+    [good.tex] REQUIREMENTS CHECK: PASS
+    [hand_typed_number.tex] REQ hand-typed numbers in body: 1
+    [hand_typed_number.tex] REQ PROBLEM: 1 hand-typed numbers
+    [hand_typed_number.tex] REQUIREMENTS CHECK: REFUSED (no release)
+    [unmapped_row.tex] REQ E5  Changes across 2017-2024, coverage-adjusted      -> UNMAPPED
+    [unmapped_row.tex] REQ PROBLEM: E5 unmapped
+    [unmapped_row.tex] REQUIREMENTS CHECK: REFUSED (no release)
+    [undefined_value.tex] REQ generated values used: 1; undefined: 1 ['no_such_key']
+    [undefined_value.tex] REQUIREMENTS CHECK: REFUSED (no release)
+QUALIFY Q8 cloud_parity: identical outputs pass; one count off refused: REFUSED as required -> qualified
+    [same] PARITY exact mismatches: 0
+    [same] PARITY: PASS
+    [one_count_off] PARITY exact mismatches: 1
+    [one_count_off]     coverage/coverage_by_year.csv.slots: 1 counts differ
+    [one_count_off] PARITY: MISMATCH
+QUALIFY SUMMARY: all refused as required

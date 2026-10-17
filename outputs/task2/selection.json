@@ -1,0 +1,64 @@
+{
+ "plan_sha256": "fd017e8e1abb21f721d274b2e711ac31bf3ab4f8998d442fbbb210f2897486db",
+ "rule": {
+  "data": "validation years only",
+  "metric": "weighted log loss pooled over the threshold grid (lower is better)",
+  "tie_break": "AUC-PR"
+ },
+ "A": {
+  "chosen": "A_lr__regParam0.001_elasticNetParam0",
+  "estimator": "LogisticRegression",
+  "params": {
+   "regParam": 0.001,
+   "elasticNetParam": 0.0
+  },
+  "validation_log_loss": 0.09594911249061597,
+  "validation_auc_pr": 0.08457611406904963,
+  "validation_auc_roc": 0.7974916728249325,
+  "path": "models/model_A",
+  "candidates": {
+   "A_lr__regParam0.0001_elasticNetParam0": {
+    "log_loss": 0.09602925747263408,
+    "auc_pr": 0.08241226972686337
+   },
+   "A_lr__regParam0.001_elasticNetParam0": {
+    "log_loss": 0.09594911249061597,
+    "auc_pr": 0.08457611406904963
+   },
+   "A_gbt__maxDepth5_maxIter60_stepSize0.1": {
+    "log_loss": 0.10074614550962348,
+    "auc_pr": 0.09770408430405929
+   }
+  }
+ },
+ "B": {
+  "chosen": "B_lr__regParam0.0001_elasticNetParam0",
+  "estimator": "LogisticRegression",
+  "params": {
+   "regParam": 0.0001,
+   "elasticNetParam": 0.0
+  },
+  "validation_log_loss": 0.04767369918312941,
+  "validation_auc_pr": 0.6676908723379424,
+  "validation_auc_roc": 0.9633936538106107,
+  "path": "models/model_B",
+  "candidates": {
+   "B_lr__regParam0.0001_elasticNetParam0": {
+    "log_loss": 0.04767369918312941,
+    "auc_pr": 0.6676908723379424
+   },
+   "B_lr__regParam0.001_elasticNetParam0": {
+    "log_loss": 0.04791825878906646,
+    "auc_pr": 0.663315509832453
+   },
+   "B_gbt__maxDepth5_maxIter80_stepSize0.1": {
+    "log_loss": 0.05098860355459593,
+    "auc_pr": 0.7279940948056175
+   },
+   "B_gbt__maxDepth7_maxIter80_stepSize0.1": {
+    "log_loss": 0.05056409019486167,
+    "auc_pr": 0.7321303771879274
+   }
+  }
+ }
+}

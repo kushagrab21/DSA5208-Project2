@@ -1,0 +1,12 @@
+{
+ "sha256": "fd017e8e1abb21f721d274b2e711ac31bf3ab4f8998d442fbbb210f2897486db",
+ "started_at": "2026-10-17T15:05:56+08:00",
+ "models": {
+  "A": "A_lr__regParam0.001_elasticNetParam0",
+  "B": "B_lr__regParam0.0001_elasticNetParam0"
+ },
+ "test_years": [
+  2024
+ ],
+ "finished": true
+}

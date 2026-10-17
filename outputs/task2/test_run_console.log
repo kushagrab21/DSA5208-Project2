@@ -1,0 +1,15 @@
+WARNING: Using incubator modules: jdk.incubator.vector
+Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+26/10/17 15:05:57 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+26/10/17 15:05:57 WARN SparkConf: Note that spark.local.dir will be overridden by the value set by the cluster manager (via SPARK_LOCAL_DIRS in standalone/kubernetes and LOCAL_DIRS in YARN).
+EVAL PLAN frozen sha256=fd017e8e1abb21f721d274b2e711ac31bf3ab4f8998d442fbbb210f2897486db verified (frozen_at=2026-10-17T14:34:24+08:00)
+EVAL PLAN test run claimed under sha256=fd017e8e1abb21f721d274b2e711ac31bf3ab4f8998d442fbbb210f2897486db
+ENV run=20261017T150558-task2_test job=task2_test spark=4.0.4 java=17.0.20.1 python=3.11.17 master=local[10] executors=1 cores=10 memory=10g host=Apple M5/10cpu/16GiB/macOS 26.5.1
+TASK2 sample split=test years=[2024] rows=3899441 positives=494857 weighted_rows=44591554 weighted_base_rate=0.0222
+TASK2 TEST baseline_climatology: AUC-ROC=0.7981 AUC-PR=0.0852 Brier=0.02095 BSS=0.035 logloss=0.09502 base=0.0222 mean_p=0.0212
+TASK2 TEST baseline_persistence: AUC-ROC=0.8651 AUC-PR=0.4045 Brier=0.01507 BSS=0.305 logloss=0.06744 base=0.0222 mean_p=0.0216
+TASK2 TEST A_lr__regParam0.001_elasticNetParam0: AUC-ROC=0.8058 AUC-PR=0.0839 Brier=0.02096 BSS=0.034 logloss=0.09251 base=0.0222 mean_p=0.0212
+TASK2 TEST B_lr__regParam0.0001_elasticNetParam0: AUC-ROC=0.9590 AUC-PR=0.6542 Brier=0.01186 BSS=0.453 logloss=0.04779 base=0.0222 mean_p=0.0219
+TEST RUN done once under plan sha256=fd017e8e1abb21f721d274b2e711ac31bf3ab4f8998d442fbbb210f2897486db started_at=2026-10-17T15:05:56+08:00 models A=A_lr__regParam0.001_elasticNetParam0 B=B_lr__regParam0.0001_elasticNetParam0

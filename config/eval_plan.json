@@ -1,0 +1,49 @@
+{
+ "plan_version": 1,
+ "task": "P(station's rain total in (t, t+30 min] > theta), inputs (station, prediction time t, theta)",
+ "label": {
+  "horizon_minutes": 30,
+  "definition": "y = 1 if f30 > theta, f30 = sum of the station's six 5-minute readings ending t+5 ... t+30 min",
+  "defined_when": "all six future slots reported and in the same calendar year as t",
+  "prediction_times": "every reported 5-minute slot end t of a station"
+ },
+ "split": {
+  "method": "by_year",
+  "train_years": [2017, 2018, 2019, 2020, 2021, 2022],
+  "validation_years": [2023],
+  "test_years": [2024],
+  "reason": "5-minute rain is autocorrelated within a storm; a random split puts neighbouring rows of one storm on both sides"
+ },
+ "threshold_grid_mm": [0.0, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0],
+ "sampling": {
+  "stratum_active": "r120 > 0 or f30 > 0 (station wet in the last 2 h or the next 30 min)",
+  "train": {"active_rate": 0.15, "inactive_rate": 0.006, "seed": 5208, "thresholds_per_row": "one, uniform over the grid"},
+  "validation": {"active_rate": 0.5, "inactive_rate": 0.02, "seed": 2023, "thresholds_per_row": "all"},
+  "test": {"active_rate": 0.5, "inactive_rate": 0.02, "seed": 2024, "thresholds_per_row": "all"},
+  "weights": "each row weighted by 1 / its sampling rate in fitting and in every metric, so estimates refer to all prediction times"
+ },
+ "features": {
+  "A_allowed_inputs": ["station_index", "station_lat", "station_lon", "station_train_wet_rate", "hour_sin", "hour_cos", "doy_sin", "doy_cos", "month", "season", "theta", "log1p_theta"],
+  "A": ["station_index", "station_lat", "station_lon", "station_train_wet_rate", "hour_sin", "hour_cos", "doy_sin", "doy_cos", "month", "season", "theta", "log1p_theta"],
+  "B_extra": ["log1p_r5", "log1p_r15", "log1p_r30", "log1p_r60", "log1p_r120", "log1p_r24h", "n120", "mins_since_wet", "wet_now", "r30_minus_theta", "nb_max_r30", "nb_mean_r30", "nb_max_r5", "nb_wet_now_frac", "nb_n", "isl_wet_now", "isl_wet30", "isl_max_r30", "isl_mean_r30"],
+  "neighbours": "6 nearest stations by great-circle distance (station table modal coordinates), readings at the same slot t",
+  "no_future_inputs": "every B feature uses readings with slot end <= t"
+ },
+ "models": {
+  "A": [
+   {"name": "A_lr", "estimator": "LogisticRegression", "encoding": "one-hot station, month, season, hour-of-day, theta", "grid": {"regParam": [0.0001, 0.001], "elasticNetParam": [0.0]}},
+   {"name": "A_gbt", "estimator": "GBTClassifier", "grid": {"maxDepth": [5], "maxIter": [60], "stepSize": [0.1]}}
+  ],
+  "B": [
+   {"name": "B_lr", "estimator": "LogisticRegression", "encoding": "A encoding + B numeric features", "grid": {"regParam": [0.0001, 0.001], "elasticNetParam": [0.0]}},
+   {"name": "B_gbt", "estimator": "GBTClassifier", "grid": {"maxDepth": [5, 7], "maxIter": [80], "stepSize": [0.1]}}
+  ]
+ },
+ "selection": {"data": "validation years only", "metric": "weighted log loss pooled over the threshold grid (lower is better)", "tie_break": "AUC-PR"},
+ "baselines": [
+  {"name": "climatology", "definition": "training-years frequency of y per (station, month, hour, theta), shrunk to the (month, hour, theta) frequency with 20 pseudo-counts"},
+  {"name": "persistence", "definition": "training-years frequency of y per (theta, whether the last 30 min at the station exceeded theta)"}
+ ],
+ "metrics": ["auc_roc", "auc_pr", "brier", "log_loss", "reliability_10_bins", "per_threshold_all_of_these", "base_rate"],
+ "test_protocol": "after model choice on 2023, the chosen A and B models and both baselines are scored once on the 2024 sample; no refit, no re-tuning"
+}

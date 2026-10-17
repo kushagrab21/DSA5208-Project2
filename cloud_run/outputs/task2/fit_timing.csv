@@ -1,0 +1,8 @@
+model,fit_seconds,train_rows
+A_lr__regParam0.0001_elasticNetParam0,21.029846668243408,871046
+A_lr__regParam0.001_elasticNetParam0,11.117571353912354,871046
+A_gbt__maxDepth5_maxIter60_stepSize0.1,133.34187197685242,871046
+B_lr__regParam0.0001_elasticNetParam0,21.542831659317017,871046
+B_lr__regParam0.001_elasticNetParam0,15.984965562820435,871046
+B_gbt__maxDepth5_maxIter80_stepSize0.1,182.69024753570557,871046
+B_gbt__maxDepth7_maxIter80_stepSize0.1,290.6915924549103,871046

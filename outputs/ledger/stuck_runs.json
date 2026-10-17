@@ -1,0 +1,58 @@
+{
+ "max_len": 35,
+ "max_len_value": 0.2,
+ "max_len_station": "S07",
+ "max_len_year": 2018,
+ "runs_ge12": 207,
+ "runs_ge6": 6469,
+ "by_year": [
+  {
+   "year": 2017,
+   "runs_ge6": 630,
+   "runs_ge12": 12,
+   "max_len": 16
+  },
+  {
+   "year": 2018,
+   "runs_ge6": 474,
+   "runs_ge12": 27,
+   "max_len": 35
+  },
+  {
+   "year": 2019,
+   "runs_ge6": 524,
+   "runs_ge12": 18,
+   "max_len": 19
+  },
+  {
+   "year": 2020,
+   "runs_ge6": 876,
+   "runs_ge12": 22,
+   "max_len": 19
+  },
+  {
+   "year": 2021,
+   "runs_ge6": 1083,
+   "runs_ge12": 42,
+   "max_len": 34
+  },
+  {
+   "year": 2022,
+   "runs_ge6": 955,
+   "runs_ge12": 24,
+   "max_len": 17
+  },
+  {
+   "year": 2023,
+   "runs_ge6": 1031,
+   "runs_ge12": 38,
+   "max_len": 19
+  },
+  {
+   "year": 2024,
+   "runs_ge6": 896,
+   "runs_ge12": 24,
+   "max_len": 19
+  }
+ ]
+}

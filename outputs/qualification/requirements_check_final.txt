@@ -1,0 +1,20 @@
+REQ E1  All 8 annual datasets 2017-2024 used             -> Approach: data, cleaning and validation
+REQ E2  Spark for processing and ML                      -> Approach: data, cleaning and validation; Computing environment
+REQ E3  Cleaning explained with counts                   -> Approach: data, cleaning and validation; External validation against the official MSS daily records
+REQ E4  Patterns within a year                           -> Task 1: patterns within a year
+REQ E5  Changes across 2017-2024, coverage-adjusted      -> Task 1: changes across 2017--2024; Task 1: comparing months and years fairly
+REQ E6  Visualisations                                   -> Task 1: patterns within a year
+REQ E7  P(rain next 30 min > theta) from (station, time, theta) -> Task 2: the prediction problem
+REQ E8  Features selected and justified                  -> Task 2: the prediction problem
+REQ E9  Evaluated with MLlib on unseen time              -> Task 2: model choice on 2023; Task 2: the prediction problem
+REQ E10 Computing environment, captured from the run     -> Computing environment
+REQ E11 AI use declared                                  -> Declaration of AI use
+REQ E12 Limitations / insights                           -> Additional work, observations and limitations
+REQ E13 Code + README, trained model                     -> Submission contents
+REQ E14 Names + student IDs                              -> Submission contents
+REQ generated values used: 241; undefined: 0
+REQ hand-typed numbers in body: 0
+REQ author Kushagra Bhatnagar (A0351591A): present
+REQ author Pratyush Sinha (A0352482A): present
+REQ AI declaration section: present; tools named: True
+REQUIREMENTS CHECK: PASS

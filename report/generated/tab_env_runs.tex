@@ -1,0 +1,18 @@
+\begin{tabular}{llr}
+\toprule
+Stage & Run id (\texttt{runs/<id>/env.json}) & Wall time (s) \\
+\midrule
+ingest (CSV $\to$ Parquet) & 20261017T152317-ingest & 23 \\
+ingest check & 20261017T152343-ingest\_check & 19 \\
+cleaning + ledger & 20261017T152406-clean & 625 \\
+ledger check & 20261017T153435-clean\_ledger & 14 \\
+coverage & 20261017T153452-coverage\_check & 4 \\
+stuck-gauge check & 20261017T153458-stuck\_runs & 11 \\
+Task 1 aggregation & 20261017T153512-task1 & 63 \\
+Task 2 features & 20261017T153619-task2\_features & 103 \\
+Task 2 samples + baselines & 20261017T153805-task2\_sample & 42 \\
+Task 2 fit + validation & 20261017T143824-task2\_train & not recorded$^{\dagger}$ \\
+Task 2 test (once) & 20261017T150558-task2\_test & 83 \\
+MSS validation & 20261017T154130-mss\_validate & 61 \\
+\bottomrule
+\end{tabular}

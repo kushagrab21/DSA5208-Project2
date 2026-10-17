@@ -1,0 +1,104 @@
+{
+ "source": "Dataproc jobs API statusHistory: RUNNING -> final state (driver start to driver exit, incl. GCS sync)",
+ "jobs": {
+  "envcheck": {
+   "job_id": "b3277c737bf6455793210aaf5e1a3639",
+   "cluster_uuid": "1f9927c9-d73b-4c8d-9055-534d321d366b",
+   "state": "DONE",
+   "submitted": "2026-10-17T09:47:34.564852Z",
+   "running": "2026-10-17T09:47:35.205881Z",
+   "done": "2026-10-17T09:48:03.764711Z",
+   "seconds": 28.6
+  },
+  "rawfetch": {
+   "job_id": "e85d3d18c79048db83e237985b694aa8",
+   "cluster_uuid": "1f9927c9-d73b-4c8d-9055-534d321d366b",
+   "state": "DONE",
+   "submitted": "2026-10-17T09:48:17.773822Z",
+   "running": "2026-10-17T09:48:18.348698Z",
+   "done": "2026-10-17T09:48:46.647777Z",
+   "seconds": 28.3
+  },
+  "ingest": {
+   "job_id": "9d38e8e0c8ab438581a013b87922e572",
+   "cluster_uuid": "1f9927c9-d73b-4c8d-9055-534d321d366b",
+   "state": "DONE",
+   "submitted": "2026-10-17T09:49:01.605212Z",
+   "running": "2026-10-17T09:49:02.092368Z",
+   "done": "2026-10-17T09:51:38.520832Z",
+   "seconds": 156.4
+  },
+  "ingest_check": {
+   "job_id": "b6a79f14b8cc4d91ba0de2c2edc06d3b",
+   "cluster_uuid": "1f9927c9-d73b-4c8d-9055-534d321d366b",
+   "state": "DONE",
+   "submitted": "2026-10-17T09:51:47.301806Z",
+   "running": "2026-10-17T09:51:47.793443Z",
+   "done": "2026-10-17T09:52:32.839875Z",
+   "seconds": 45.0
+  },
+  "clean": {
+   "job_id": "0882f71128ae4cfcbc85b69c948e7a7c",
+   "cluster_uuid": "1f9927c9-d73b-4c8d-9055-534d321d366b",
+   "state": "DONE",
+   "submitted": "2026-10-17T09:52:50.927810Z",
+   "running": "2026-10-17T09:52:51.437443Z",
+   "done": "2026-10-17T10:02:31.047759Z",
+   "seconds": 579.6
+  },
+  "clean_ledger": {
+   "job_id": "067aef8322824a3daafac0ea041afdfe",
+   "cluster_uuid": "1f9927c9-d73b-4c8d-9055-534d321d366b",
+   "state": "DONE",
+   "submitted": "2026-10-17T10:02:46.935359Z",
+   "running": "2026-10-17T10:02:47.557332Z",
+   "done": "2026-10-17T10:03:36.017616Z",
+   "seconds": 48.5
+  },
+  "coverage_check": {
+   "job_id": "438b64079afd42c39bead98df210274a",
+   "cluster_uuid": "0f9a295b-b791-4572-b178-e55b39497820",
+   "state": "DONE",
+   "submitted": "2026-10-17T11:22:38.753477Z",
+   "running": "2026-10-17T11:22:40.280858Z",
+   "done": "2026-10-17T11:23:31.313331Z",
+   "seconds": 51.0
+  },
+  "task1": {
+   "job_id": "7e31bb6cacc5496aaa9202e755733736",
+   "cluster_uuid": "0f9a295b-b791-4572-b178-e55b39497820",
+   "state": "DONE",
+   "submitted": "2026-10-17T11:23:43.346020Z",
+   "running": "2026-10-17T11:23:43.832422Z",
+   "done": "2026-10-17T11:26:06.767677Z",
+   "seconds": 142.9
+  },
+  "task2_features": {
+   "job_id": "82dd2a7890d24d92bc0a284a6aaadba7",
+   "cluster_uuid": "0f9a295b-b791-4572-b178-e55b39497820",
+   "state": "DONE",
+   "submitted": "2026-10-17T11:26:30.383670Z",
+   "running": "2026-10-17T11:26:30.894212Z",
+   "done": "2026-10-17T11:30:45.824711Z",
+   "seconds": 254.9
+  },
+  "task2_sample": {
+   "job_id": "cb328ad6107f45acbaefb7156c196d66",
+   "cluster_uuid": "0f9a295b-b791-4572-b178-e55b39497820",
+   "state": "DONE",
+   "submitted": "2026-10-17T11:31:02.010793Z",
+   "running": "2026-10-17T11:31:02.616758Z",
+   "done": "2026-10-17T11:33:15.699842Z",
+   "seconds": 133.1
+  },
+  "task2_train": {
+   "job_id": "8876597c19754fdaa7e2e1b69e55946a",
+   "cluster_uuid": "0f9a295b-b791-4572-b178-e55b39497820",
+   "state": "DONE",
+   "submitted": "2026-10-17T11:33:27.737426Z",
+   "running": "2026-10-17T11:33:28.317800Z",
+   "done": "2026-10-17T11:54:18.992412Z",
+   "seconds": 1250.7
+  }
+ }
+}

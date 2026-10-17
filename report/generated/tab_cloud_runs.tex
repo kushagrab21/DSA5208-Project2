@@ -1,0 +1,15 @@
+\begin{tabular}{llr}
+\toprule
+Stage & Run id (\texttt{runs/<id>/env.json}) & Wall time (s) \\
+\midrule
+ingest (CSV $\to$ Parquet) & dataproc-20261017T174507-ingest & 156 \\
+ingest check & dataproc-20261017T174507-ingest\_check & 45 \\
+cleaning + ledger & dataproc-20261017T174507-clean & 580 \\
+ledger check & dataproc-20261017T174507-clean\_ledger & 48 \\
+coverage & dataproc-20261017T174507-coverage\_check & 51 \\
+Task 1 aggregation & dataproc-20261017T174507-task1 & 143 \\
+Task 2 features & dataproc-20261017T174507-task2\_features & 255 \\
+Task 2 samples + baselines & dataproc-20261017T174507-task2\_sample & 133 \\
+Task 2 fit + validation & dataproc-20261017T174507-task2\_train & 1251 \\
+\bottomrule
+\end{tabular}

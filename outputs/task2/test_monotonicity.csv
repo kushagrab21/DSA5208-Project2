@@ -1,0 +1,5 @@
+model,adjacent_threshold_pairs,pairs_where_p_rises,share_rises,max_rise
+baseline_climatology,3342378,0,0.0,0.0
+baseline_persistence,3342378,0,0.0,-0.0019947370913243685
+A_lr__regParam0.001_elasticNetParam0,3342378,0,0.0,-0.000421321012449849
+B_lr__regParam0.0001_elasticNetParam0,3342378,0,0.0,-3.4888060520543718e-06

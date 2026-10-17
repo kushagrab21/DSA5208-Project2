@@ -1,0 +1,55 @@
+MSS files=4729 stations=54 station_days=143707 with_daily_total=135842
+MSS AGREEMENT complete days: days=88443 stations=54 corr=0.9908 mean_diff=-0.061 mm MAE=0.086 mm within_0.2mm=0.991 within_max(1mm,5%)=0.994 total_ratio=0.9915 wet(>=1mm)_disagree=300 max_abs_diff=318.2
+MSS AGREEMENT year=2017 days=6119 corr=0.9943 MAE=0.083 ratio=0.9897
+MSS AGREEMENT year=2018 days=8548 corr=0.9963 MAE=0.062 ratio=0.9933
+MSS AGREEMENT year=2019 days=13398 corr=0.9913 MAE=0.089 ratio=0.9838
+MSS AGREEMENT year=2020 days=12921 corr=0.9964 MAE=0.048 ratio=0.9941
+MSS AGREEMENT year=2021 days=12089 corr=0.9735 MAE=0.164 ratio=0.9923
+MSS AGREEMENT year=2022 days=12024 corr=0.9983 MAE=0.053 ratio=0.9964
+MSS AGREEMENT year=2023 days=11985 corr=0.9909 MAE=0.104 ratio=0.9881
+MSS AGREEMENT year=2024 days=11359 corr=0.9954 MAE=0.079 ratio=0.9911
+MSS AGREEMENT complete days with |difference| > 20 mm: 101 of 88443
+    S36 2021-04-01: ours 318.2 mm vs official 0.0 mm (all 288 slots reported)
+    S36 2021-01-20: ours 137.8 mm vs official 0.0 mm (all 288 slots reported)
+    S104 2023-12-25: ours 0.6 mm vs official 134.0 mm (all 288 slots reported)
+    S115 2023-12-16: ours 3.4 mm vs official 109.5 mm (all 288 slots reported)
+    S115 2021-01-10: ours 20.4 mm vs official 125.0 mm (all 288 slots reported)
+    S71 2021-06-29: ours 0.0 mm vs official 103.5 mm (all 288 slots reported)
+    S69 2017-06-18: ours 0.0 mm vs official 77.5 mm (all 288 slots reported)
+    S115 2021-01-09: ours 13.6 mm vs official 87.0 mm (all 288 slots reported)
+MSS DAYCLASS complete              station_days= 88443 official_rain=   627814 mm (66.1%)
+MSS DAYCLASS partial               station_days= 32561 official_rain=   222994 mm (23.5%)
+MSS DAYCLASS station_absent_month  station_days= 10109 official_rain=    73457 mm (7.7%)
+MSS DAYCLASS network_outage        station_days=  3262 official_rain=    16269 mm (1.7%)
+MSS DAYCLASS station_gap           station_days=  1467 official_rain=     9036 mm (1.0%)
+MSS GAPS active station-months=4272 official_rain=875340 mm; on days we lack: network outages 15496 mm (1.8%), single-station gaps 9036 mm (1.0%); on partial days 222994 mm (25.5%)
+MSS GAPS worst active station-months by official rain on days we lack:
+    S64 2022-08: official 406.4 mm, ours 0.0 mm; 29 days missing hold 402.0 mm (99%; network outage 0.0)
+    S24 2023-01: official 302.6 mm, ours 0.0 mm; 30 days missing hold 302.6 mm (100%; network outage 12.6)
+    S07 2021-01: official 290.8 mm, ours 0.0 mm; 27 days missing hold 290.8 mm (100%; network outage 0.0)
+    S108 2024-11: official 243.2 mm, ours 11.8 mm; 25 days missing hold 231.4 mm (95%; network outage 0.0)
+    S24 2021-01: official 692.8 mm, ours 341.6 mm; 3 days missing hold 216.2 mm (31%; network outage 216.2)
+    S122 2021-01: official 204.2 mm, ours 7.8 mm; 17 days missing hold 196.4 mm (96%; network outage 0.0)
+    S106 2021-01: official 435.8 mm, ours 123.4 mm; 3 days missing hold 190.6 mm (44%; network outage 190.6)
+    S94 2021-01: official 630.2 mm, ours 324.6 mm; 3 days missing hold 190.4 mm (30%; network outage 190.4)
+    S84 2021-01: official 618.4 mm, ours 290.8 mm; 3 days missing hold 189.2 mm (31%; network outage 189.2)
+    S78 2021-01: official 521.8 mm, ours 220.4 mm; 3 days missing hold 179.6 mm (34%; network outage 179.6)
+    S113 2021-01: official 530.0 mm, ours 242.6 mm; 3 days missing hold 177.4 mm (33%; network outage 177.4)
+    S106 2023-01: official 293.8 mm, ours 113.4 mm; 12 days missing hold 177.2 mm (60%; network outage 21.0)
+    S43 2021-01: official 635.4 mm, ours 341.4 mm; 3 days missing hold 177.2 mm (28%; network outage 177.2)
+    S60 2022-08: official 175.4 mm, ours 0.2 mm; 29 days missing hold 175.2 mm (100%; network outage 0.0)
+    S107 2021-01: official 529.4 mm, ours 219.6 mm; 3 days missing hold 175.0 mm (33%; network outage 175.0)
+MSS OUTAGES network-wide outage days with an official record: 64; wettest:
+    2021-01-02: official mean 129.5 mm, max 210.6 mm over 40 stations
+    2018-08-22: official mean 29.9 mm, max 78.6 mm over 54 stations
+    2018-04-14: official mean 22.7 mm, max 59.0 mm over 52 stations
+    2023-01-05: official mean 16.0 mm, max 41.2 mm over 45 stations
+    2018-08-31: official mean 15.1 mm, max 67.6 mm over 53 stations
+    2019-11-08: official mean 14.4 mm, max 43.8 mm over 50 stations
+MSS MONTHLY ours/official rate, same station-months: median ratio 1.000; outside [0.85, 1.15]:
+    2018-08: ours 0.46 vs official 2.92 mm/day (ratio 0.16; official rain on days we lack 99%)
+    2021-01: ours 9.18 vs official 13.38 mm/day (ratio 0.69; official rain on days we lack 32%)
+    2019-07: ours 1.99 vs official 2.38 mm/day (ratio 0.84; official rain on days we lack 30%)
+    2023-01: ours 9.11 vs official 7.30 mm/day (ratio 1.25; official rain on days we lack 18%)
+    2020-08: ours 7.10 vs official 5.53 mm/day (ratio 1.28; official rain on days we lack 1%)
+    2018-02: ours 2.76 vs official 1.92 mm/day (ratio 1.44; official rain on days we lack 3%)

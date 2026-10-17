@@ -1,0 +1,15 @@
+\begin{tabular}{lrrrrrrrr}
+\toprule
+Model (validation 2023) & AUC-ROC & AUC-PR & Brier & BSS & Log loss & Mean $p$ & $p$ rises with $\theta$ & Fit (s) \\
+\midrule
+Climatology baseline & 0.788 & 0.094 & 0.02165 & 0.037 & 0.0995 & 0.0211 & 0.00\,\% & -- \\
+Persistence baseline & 0.868 & 0.422 & 0.01528 & 0.321 & 0.0682 & 0.0220 & 0.00\,\% & -- \\
+A: logistic regression (reg 0.0001) & 0.797 & 0.082 & 0.02175 & 0.033 & 0.0960 & 0.0210 & 0.00\,\% & 6 \\
+A: logistic regression (chosen) & 0.797 & 0.085 & 0.02174 & 0.033 & 0.0959 & 0.0211 & 0.00\,\% & 6 \\
+A: gradient-boosted trees (depth 5, trees 60) & 0.808 & 0.098 & 0.02179 & 0.031 & 0.1007 & 0.0325 & 0.04\,\% & 121 \\
+B: logistic regression (chosen) & 0.963 & 0.668 & 0.01204 & 0.465 & 0.0477 & 0.0228 & 0.00\,\% & 15 \\
+B: logistic regression (reg 0.001) & 0.964 & 0.663 & 0.01214 & 0.460 & 0.0479 & 0.0228 & 0.00\,\% & 12 \\
+B: gradient-boosted trees (depth 5, trees 80) & 0.978 & 0.728 & 0.01100 & 0.511 & 0.0510 & 0.0352 & 0.66\,\% & 167 \\
+B: gradient-boosted trees (depth 7, trees 80) & 0.980 & 0.732 & 0.01092 & 0.514 & 0.0506 & 0.0358 & 1.57\,\% & 286 \\
+\bottomrule
+\end{tabular}

@@ -1,0 +1,16 @@
+\begin{tabular}{lrrp{7.3cm}}
+\toprule
+Rule & Removed & Of & What it removes \\
+\midrule
+corrupt & 0 & 48{,}538{,}713 & line not parseable with the explicit schema \\
+missing & 0 & 48{,}538{,}713 & station, timestamp or value missing \\
+type\_unit & 0 & 48{,}538{,}713 & not a 5-minute rainfall total in mm \\
+bad\_ts & 0 & 48{,}538{,}713 & timestamp not ISO 8601 with offset \\
+year\_mismatch & 0 & 48{,}538{,}713 & timestamp outside the file's calendar year (SGT) \\
+negative & 0 & 48{,}538{,}713 & negative rainfall \\
+implausible & 0 & 48{,}538{,}713 & more than 50 mm in 5 minutes \\
+snap & 0 (1{,}775{,}327 adjusted) & 48{,}538{,}713 & timestamp moved to the nearest 5-minute slot end \\
+snap\_year\_cross & 0 & 48{,}538{,}713 & snapping moved the slot into another year \\
+duplicate & 86 & 48{,}538{,}713 & second or later reading for the same station and slot \\
+\bottomrule
+\end{tabular}

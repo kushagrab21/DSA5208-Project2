@@ -1,0 +1,15 @@
+\begin{tabular}{lrrr}
+\toprule
+Stage & Local (s) & Dataproc (s) & Dataproc / local \\
+\midrule
+ingest (CSV $\to$ Parquet) & 23 & 156 & 6.7 \\
+ingest check & 19 & 45 & 2.3 \\
+cleaning + ledger & 625 & 580 & 0.9 \\
+ledger check & 14 & 48 & 3.4 \\
+coverage & 4 & 51 & 13.4 \\
+Task 1 aggregation & 63 & 143 & 2.3 \\
+Task 2 features & 103 & 255 & 2.5 \\
+Task 2 samples + baselines & 42 & 133 & 3.2 \\
+Task 2 fit + validation & not recorded & 1251 & -- \\
+\bottomrule
+\end{tabular}

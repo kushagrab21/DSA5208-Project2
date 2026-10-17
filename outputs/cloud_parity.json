@@ -1,0 +1,148 @@
+{
+ "checked": [
+  "ingest rows/stations/span per year",
+  "cleaning ledger (every rule)",
+  "coverage/coverage_by_year.csv",
+  "task1/daily_extremes_by_year.csv",
+  "task1/daily_network.csv",
+  "task1/diurnal_by_season.csv",
+  "task1/diurnal_by_year.csv",
+  "task1/hourly_extremes_by_month.csv",
+  "task1/hourly_extremes_by_year.csv",
+  "task1/intensity_classes_by_year.csv",
+  "task1/monthly_by_year.csv",
+  "task1/monthly_by_year_panel.csv",
+  "task1/resolution_by_station_year.csv",
+  "task1/resolution_by_year.csv",
+  "task1/season_by_year.csv",
+  "task1/station_annual_max_hour.csv",
+  "task1/station_season.csv",
+  "task1/station_year.csv",
+  "task1/wet_spells_by_year.csv",
+  "task2/train_sample_by_theta.csv",
+  "task2/validation_sample_by_theta.csv",
+  "task2/f30_train_dist.csv"
+ ],
+ "exact_mismatches": [],
+ "float_columns": 34,
+ "float_max_rel": 3.1143750257031356e-13,
+ "float_max_col": "task2/train_sample_by_theta.csv.weighted_base_rate",
+ "float_over_tol": 0,
+ "task2": [
+  {
+   "model": "baseline_climatology",
+   "auc_pr_local": 0.0940474668918087,
+   "log_loss_local": 0.0994811976569584,
+   "brier_local": 0.0216549805324634,
+   "auc_pr_cloud": 0.0940472837096697,
+   "log_loss_cloud": 0.0994811976569582,
+   "brier_cloud": 0.0216549805324636
+  },
+  {
+   "model": "baseline_persistence",
+   "auc_pr_local": 0.4216571813846532,
+   "log_loss_local": 0.0681670293473303,
+   "brier_local": 0.015278683131722,
+   "auc_pr_cloud": 0.4216571813846532,
+   "log_loss_cloud": 0.06816702934733,
+   "brier_cloud": 0.0152786831317221
+  },
+  {
+   "model": "A_lr__regParam0.0001_elasticNetParam0",
+   "auc_pr_local": 0.0824122697268633,
+   "log_loss_local": 0.096029257472634,
+   "brier_local": 0.0217549264669591,
+   "auc_pr_cloud": 0.0824115324480548,
+   "log_loss_cloud": 0.0960292574726258,
+   "brier_cloud": 0.0217549264669586
+  },
+  {
+   "model": "A_lr__regParam0.001_elasticNetParam0",
+   "auc_pr_local": 0.0845761140690496,
+   "log_loss_local": 0.0959491124906159,
+   "brier_local": 0.021742085764481,
+   "auc_pr_cloud": 0.084577069535464,
+   "log_loss_cloud": 0.0959491124906733,
+   "brier_cloud": 0.0217420857644857
+  },
+  {
+   "model": "A_gbt__maxDepth5_maxIter60_stepSize0.1",
+   "auc_pr_local": 0.0977040843040592,
+   "log_loss_local": 0.1007461455096234,
+   "brier_local": 0.0217916918777919,
+   "auc_pr_cloud": 0.0979559206045262,
+   "log_loss_cloud": 0.100722800564451,
+   "brier_cloud": 0.0217939208465057
+  },
+  {
+   "model": "B_lr__regParam0.0001_elasticNetParam0",
+   "auc_pr_local": 0.6676908723379424,
+   "log_loss_local": 0.0476736991831294,
+   "brier_local": 0.0120398251650064,
+   "auc_pr_cloud": 0.6676928125566957,
+   "log_loss_cloud": 0.0476736991829334,
+   "brier_cloud": 0.0120398251648017
+  },
+  {
+   "model": "B_lr__regParam0.001_elasticNetParam0",
+   "auc_pr_local": 0.663315509832453,
+   "log_loss_local": 0.0479182587890664,
+   "brier_local": 0.0121376361006638,
+   "auc_pr_cloud": 0.6633195040223986,
+   "log_loss_cloud": 0.0479182587890653,
+   "brier_cloud": 0.0121376361006634
+  },
+  {
+   "model": "B_gbt__maxDepth5_maxIter80_stepSize0.1",
+   "auc_pr_local": 0.7279940948056175,
+   "log_loss_local": 0.0509886035545959,
+   "brier_local": 0.0109989567025186,
+   "auc_pr_cloud": 0.7274536996530407,
+   "log_loss_cloud": 0.0510442165787622,
+   "brier_cloud": 0.0110215099010721
+  },
+  {
+   "model": "B_gbt__maxDepth7_maxIter80_stepSize0.1",
+   "auc_pr_local": 0.7321303771879274,
+   "log_loss_local": 0.0505640901948616,
+   "brier_local": 0.0109236105573635,
+   "auc_pr_cloud": 0.7298160141222055,
+   "log_loss_cloud": 0.0506987202061237,
+   "brier_cloud": 0.0109698997421997
+  }
+ ],
+ "same_choice": true,
+ "approx_quantiles": 5,
+ "approx_max_rel": 0.013272727272727346,
+ "approx_max_col": "task1/resolution_by_year.csv.p999_wet",
+ "threshold_counts": [
+  {
+   "column": "task1/daily_extremes_by_year.csv.heavy_days",
+   "rows_differing": 4,
+   "max_diff": 1,
+   "min_on_threshold": 2,
+   "within_bound": true
+  },
+  {
+   "column": "task1/hourly_extremes_by_month.csv.hours_ge_20",
+   "rows_differing": 10,
+   "max_diff": 3,
+   "min_on_threshold": 11,
+   "within_bound": true
+  },
+  {
+   "column": "task1/hourly_extremes_by_year.csv.hours_ge_20",
+   "rows_differing": 8,
+   "max_diff": 4,
+   "min_on_threshold": 20,
+   "within_bound": true
+  },
+  {
+   "column": "task1/hourly_extremes_by_year.csv.hours_ge_40",
+   "rows_differing": 4,
+   "max_diff": 2,
+   "min_on_threshold": 1,
+   "within_bound": true
+  }
+ ]
+}

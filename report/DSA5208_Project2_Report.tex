@@ -1,0 +1,656 @@
+% DSA5208 Project 2 report. Build: cd report && tectonic DSA5208_Project2_Report.tex
+% Every number comes from generated/values.tex or generated/tab_*.tex, written by src/report_macros.py from the
+% pipeline's outputs; checks/requirements_check.py refuses a release with a hand-typed number.
+\documentclass[10pt,a4paper]{article}
+\linespread{1.06}
+\usepackage[a4paper,margin=2.2cm]{geometry}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\PassOptionsToPackage{hyphens}{url}
+\usepackage{microtype,booktabs,array,tabularx,xcolor,enumitem,caption,float,amsmath,amssymb,graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries\sffamily}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\normalsize\bfseries\sffamily}{\thesubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{1.4ex plus .4ex}{0.7ex}
+\titlespacing*{\subsection}{0pt}{1.1ex plus .3ex}{0.5ex}
+\setlist{itemsep=1pt,topsep=2pt,parsep=0pt}
+\captionsetup{font=small,labelfont={bf,sf},skip=4pt}
+\setlength{\parskip}{3pt}\setlength{\parindent}{0pt}
+\renewcommand{\arraystretch}{1.1}
+\graphicspath{{../figures/}}
+\newcommand{\code}[1]{\texttt{#1}}  % write a CLI flag as -{}-flag: the empty group stops the -- ligature
+\newcommand{\req}[1]{}
+\newcommand{\setval}[2]{\expandafter\def\csname pv@#1\endcsname{#2}}
+\newcommand{\val}[1]{\ifcsname pv@#1\endcsname\csname pv@#1\endcsname\else\errmessage{undefined generated value #1}\fi}
+\input{generated/values.tex}
+\newcommand{\src}[1]{\emph{Made by} \code{#1}.}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries\sffamily Rainfall across Singapore, 2017--2024:\\[2pt] patterns and a \val{horizon}-minute rain model with Apache Spark}\\[8pt]
+DSA5208 Project 2\\[3pt]
+\author{Kushagra Bhatnagar (A0351591A) \quad$\cdot$\quad Pratyush Sinha (A0352482A)}%
+Kushagra Bhatnagar (A0351591A) \quad$\cdot$\quad Pratyush Sinha (A0352482A)\\[2pt]
+{\small All numbers and tables produced from the pipeline outputs by \code{src/report\_macros.py}, \val{generated_at}}
+\end{center}
+
+\textbf{Summary.} We used all \val{n_years} annual files of the data.gov.sg ``Historical Rainfall across Singapore''
+collection, 2017 to 2024: \val{ing_total} five-minute readings from \val{n_stations} stations, processed and modelled
+with Apache Spark (DataFrame API and MLlib). In Task 1, November is the wettest month and July the driest. Rain peaks
+in the afternoon in every season except the south-west monsoon, when it peaks in the morning. Wet and dry years differ
+in how often it rains, not how hard: 2019 was dry because fewer slots had rain, while intensity barely moved. In
+Task 2 we model $P(\text{rain in the next \val{horizon} min} > \theta)$ from the station, the time and $\theta$. A
+strict model that uses only these three inputs does no better than climatology (test AUC-PR \val{t.A.all.aucpr}
+against \val{t.clim.all.aucpr}). A nowcasting model with the same interface, which also looks up the rain observed up
+to the prediction time, reaches AUC-PR \val{t.B.all.aucpr} and Brier skill \val{t.B.all.bss} on 2024, a year we kept
+aside for a single final test, and its probabilities are close to calibrated. Against the official Meteorological Service
+Singapore (MSS) daily records, our data agree closely on complete days (correlation \val{mss_corr} over
+\val{mss_days} station-days). The gaps, however, are not random: a network outage on \val{jan21_gap_days} 2021 hides
+some of the heaviest rain of Singapore's wettest January on record.
+
+% ======================================================================================================
+\section{Data and cleaning}
+\req{E1}\req{E3}\req{E2}
+\subsection{Data and ingestion}
+Each annual file has one row per station and \val{slot_min}-minute interval: the time, the station (ID, name,
+coordinates) and the rain in mm (\code{reading\_value}). A reading is the rain in the five minutes ending at its
+timestamp. All times are Singapore time, and we set Spark's session time zone to match.
+
+We read the eight CSVs with Spark using an explicit schema instead of schema inference, so that a malformed line would
+be kept in a corrupt-record column rather than dropped without trace, and wrote them to Parquet partitioned by year
+(\code{src/ingest.py}). To confirm that nothing was lost on the way, \code{checks/ingest\_check.py} compares, for each
+year, the Parquet row count with the number of data lines in the CSV, and stops the pipeline if a year is missing or a
+count differs. Table~\ref{tab:ingest} is its output: every year is present and matches line
+for line. The network is not fixed: it has between \val{ing_st_min} and \val{ing_st_max} stations
+depending on the year, and the 2017 file starts only at \val{first2017} on \val{first2017_day}.
+
+\begin{table}[H]\centering\small
+\input{generated/tab_ingest.tex}
+\caption{Ingestion, one row per annual file: rows written to Parquet against data lines in the CSV, number of
+stations, and the first and last reading (Singapore time). The two counts are equal in every year.
+\src{checks/ingest\_check.py}}\label{tab:ingest}
+\end{table}
+
+\subsection{Cleaning}
+The cleaning stage (\code{src/clean.py}) applies the rules of Table~\ref{tab:ledger} in order, each to the rows the
+previous rule left, so the removals add up exactly to the difference between input and output.
+\code{checks/clean\_ledger.py} then recounts both from the Parquet files and stops the pipeline if a single row is
+unaccounted for. In the narrow sense the data were clean: there were no corrupt, missing, negative or implausible
+values (more than \val{implausible_mm}\,mm in five minutes). Two problems needed a rule:
+\begin{itemize}
+\item \val{snap_n} timestamps were one second before a five-minute mark (the first 2017 reading, for example, is
+stamped \val{first2017_raw}). We moved them to the nearest slot (largest shift \val{snap_shift}\,s); nothing was
+removed.
+\item \val{dup_n} readings repeated a (station, slot) pair. We kept the latest update; none of the duplicates had a
+conflicting value (\val{dup_conflict} conflicts).
+\end{itemize}
+The duplicates were the only rows removed: \val{clean_in} rows went in and \val{clean_out} came out. We also looked
+for ``stuck'' gauges, that is, long runs of the same positive value. The longest run was \val{stuck_len} slots of
+\val{stuck_val}\,mm (\val{stuck_station}, \val{stuck_year}). That is plausible drizzle, so we added no rule for it.
+%
+\begin{table}[H]\centering\small
+\input{generated/tab_ledger.tex}
+\caption{Cleaning ledger, rules in the order applied: rows removed by each rule and the number of rows it saw. Only
+the duplicate rule removed rows; the timestamp snap adjusted rows without removing any.
+\src{src/clean.py; checked by checks/clean\_ledger.py}}\label{tab:ledger}
+\end{table}
+
+Cleaning cannot fill gaps, and the data have many. Table~\ref{tab:coverage} shows how much of each year was reported:
+between \val{cov_share_min} and \val{cov_share_max} of the possible station-slots. Some months are almost empty for the
+whole network. August 2018 has data on \val{days.2018.aug} days, February 2018 on \val{days.2018.feb} and January 2023
+on \val{days.2023.jan}. Because both the station set and the coverage change from year to year, we never compare raw
+sums across years; every rate in this report is computed per reported slot (Section~\ref{sec:t1method}).
+\begin{table}[H]\centering\small
+\input{generated/tab_coverage.tex}
+\caption{Coverage per year: stations, station-days (a station-day counts if the station reported at least once that
+day), share of those days with at least \val{full_day_pct}\,\% of slots, share of all possible station-slots reported,
+and days on which any station reported. 2018 has the fewest days with data and 2020 the lowest share of slots.
+\src{checks/coverage\_check.py}}\label{tab:coverage}
+\end{table}
+
+The measurement resolution also changed. Until 2019 almost every positive reading is a multiple of
+\val{gauge_step}\,mm, the tipping-bucket step: \val{mult02.2017} of them in 2017 and \val{mult02.2019} in 2019. From
+2020 values such as \val{min_pos.2020}\,mm appear, and only \val{mult02.2021} (2021) to \val{mult02.2024} (2024) of
+positive readings are multiples of the step. We read this as a change in instruments or processing. We did not test whether
+it moved the across-year results: the fixed station panel (Section~\ref{sec:t1method}) holds the stations constant,
+not the instruments, so the change stays a limitation of this report.
+
+\subsection{Checking the data against the official MSS daily records}\label{sec:mss}
+\req{E3}
+data.gov.sg warns that the data ``may contain missing records and has not undergone quality control''. We therefore
+compared them with the official MSS daily station records (\code{weather.gov.sg}). These serve only as a check: neither
+task uses MSS values. \code{src/mss\_fetch.py} downloaded the daily files one at a time, with a pause between
+requests, and cached them. \val{mss_n_probe} of our station IDs have MSS records, giving \val{mss_n_files}
+station-month files. \code{src/mss\_validate.py} sums our readings into local calendar days and joins them to the MSS
+daily totals.
+
+Where both exist, they agree. On the \val{mss_days} station-days on which our station reported all \val{slots_day}
+slots, our daily total and the official one correlate at \val{mss_corr}, with a mean absolute difference of
+\val{mss_mae}\,mm and a mean difference of \val{mss_meandiff}\,mm. On \val{mss_within02} of these days the two agree
+to within \val{gauge_step}\,mm, and over all of them our rain adds up to \val{mss_ratio} times the official total.
+Large disagreements are rare (\val{mss_big20} days differ by more than \val{heavy_hour_mm}\,mm), and the largest look
+like faulty gauges, in both directions. On \val{mss_spur.date} station \val{mss_spur.st} reports \val{mss_spur.ours}\,mm
+spread over the whole day, while MSS records \val{mss_spur.off}\,mm and no nearby station in our data reports heavy
+rain. On \val{mss_zero.date}, during a storm, station \val{mss_zero.st} reports only \val{mss_zero.ours}\,mm across
+all its slots, while MSS records \val{mss_zero.off}\,mm.
+
+None of our cleaning rules can catch days like these, because every value is plausible on its own
+(Figure~\ref{fig:mss}a). For the extremes they matter little. On complete matched days we count \val{mss_heavy_ours}
+days with at least \val{heavy_day_mm}\,mm against \val{mss_heavy_off} in the official records; only
+\val{mss_false_heavy} of ours had less than \val{mss_small}\,mm officially, and only \val{mss_missed_heavy} official
+heavy days show less than \val{mss_small}\,mm in our data.
+
+Agreement on complete days says nothing about the days we lack. To measure what the gaps cost, we put every
+station-day that has an official record into one of five classes and computed the share of official rain in each:
+\begin{itemize}
+\item \emph{complete} (all slots): \val{mss_cls.complete} of official rain;
+\item \emph{partial} (some slots missing): \val{mss_cls.partial};
+\item \emph{network outage} (no station in our data reported that day): \val{mss_cls.network_outage};
+\item \emph{station gap} (the station is silent that day but reported in the same month):
+\val{mss_cls.station_gap};
+\item \emph{station absent} (the station has no reading in the whole month): \val{mss_cls.station_absent_month}.
+\end{itemize}
+The last class reflects which stations were in the network, not missing data. The other gaps are not random. The
+wettest network-outage day, \val{outage1.date}, averaged \val{outage1.mean}\,mm over the \val{outage1.n} MSS stations,
+with up to \val{outage1.max}\,mm at one of them. MSS reported January 2021 as Singapore's wettest January on record.
+At Changi (S24) its official total for that month is \val{s24_jan21_off}\,mm; our dataset has
+\val{s24_jan21_ours}\,mm. Our data stop at \val{jan21_last} on \val{jan21_last_day} and resume on
+\val{jan21_first_day}, and that gap covers the days on which MSS recorded \val{s24_jan1}\,mm (\val{s24_d1}) and
+\val{s24_jan2}\,mm (\val{s24_d2}) at Changi. Table~\ref{tab:gaps} lists the station-months that lose the most official
+rain to missing days. In some of them a single station was silent; others fall in the January 2021 outage.
+
+\begin{table}[tbp]\centering\small
+\resizebox{\textwidth}{!}{\input{generated/tab_gaps.tex}}
+\caption{Station-months with the most official MSS rain on days missing from our data, counting only months in which
+the station reported at least once. Totals in mm. ``Days missing'' counts days with no reading at all; a day with some
+readings (such as \val{jan21_last_day} 2021 before \val{jan21_last}) is a partial day. ``Share'' is the missing rain
+as a share of the month's official total, and the last column is the part of it that fell on network-outage days.
+In the worst months a station lost nearly its whole month. \src{src/mss\_validate.py}}\label{tab:gaps}
+\end{table}
+
+\begin{figure}[tbp]\centering
+\includegraphics[width=0.9\textwidth]{fig16_mss_validation.png}
+\caption{(a) Daily rain on the \val{mss_days} complete station-days, our total against the official MSS total (mm).
+Nearly all points lie on the diagonal; the few far below or above it are the faulty-gauge days described in the
+text. (b) Share of official rain, per year and month, that fell on days our data lack (stations reporting that month).
+The losses are concentrated in a few months, above all August 2018, then January 2021 and July 2019.
+\src{src/plot\_mss.py from outputs/mss/}}\label{fig:mss}
+\end{figure}
+
+% ======================================================================================================
+\section{Investigating weather patterns and developing the model}
+\subsection{Task 1: how we compared months and years}\label{sec:t1method}
+\req{E5}
+All aggregation runs in Spark (\code{src/task1.py}); only the small result tables go to Python for plotting. Because
+the stations and the coverage change, the basic quantity is a \emph{rate} rather than a sum: the mean five-minute
+reading over reported slots, times \val{slots_day}, that is, mm per station-day. Missing slots do not lower a month's
+rate, and the number of stations in a year does not enter it. For a year we use a \emph{month-balanced} total, the sum
+over the twelve months of (monthly rate $\times$ days in the month), so that a missing week in a wet month cannot
+lower the year.
+
+We split each rate into \emph{frequency}, the share of slots with rain, and \emph{intensity}, the mean rain per wet
+slot in mm/h. This split is what lets us say whether a dry year had fewer showers or weaker ones. Extremes use complete
+station-hours only (all twelve slots) and complete station-days (at least \val{full_day_pct}\,\% of slots). Seasons
+follow the MSS monsoon calendar: north-east monsoon December--March, inter-monsoon April--May, south-west monsoon
+June--September, inter-monsoon October--November.
+
+Two checks test whether these comparisons hold. A \emph{fixed panel} of the \val{panel_n} stations that reported at
+least half of every year removes the effect of stations joining and leaving the network, so a pattern that is real should appear in the panel too.
+The MSS comparison of Section~\ref{sec:mss}, applied per month, finds months whose rate is distorted because the
+missing days were not ordinary days.
+
+\subsection{Task 2: target and thresholds}\label{sec:t2method}
+\req{E7}\req{E8}
+For station $s$, prediction time $t$ (the end of a five-minute slot) and threshold $\theta$, the label is $y=1$ if the
+station's rain in $(t, t+\val{horizon}\,\text{min}]$, the sum $f_{30}$ of the next six readings, exceeds $\theta$. We
+create a label only when all six future slots were reported and lie in the same calendar year as $t$. A missing
+reading therefore never counts as no rain, and no label crosses a split boundary. Because $\theta$ is an input, one
+model answers every threshold.
+
+We chose the thresholds from the training years alone (Figure~\ref{fig:grid}). Wet \val{horizon}-minute totals have a
+median of \val{q50}\,mm, a ninetieth percentile of \val{q90}\,mm and a ninety-ninth percentile of \val{q99}\,mm.
+Measurable rain (more than \val{zero}\,mm) follows \val{f30rate.0} of prediction times, and more than
+\val{grid_max}\,mm follows \val{f30rate.20}, which still gives \val{f30pos.20} cases in six years. Above that the cases
+run out quickly: \val{f30pos.30} above \val{cand_th_hi1}\,mm and \val{f30pos.40} above \val{cand_th_hi2}\,mm. At the
+low end, the gauge step of \val{gauge_step}\,mm makes ``more than \val{gauge_step}\,mm'' almost the same event as
+``more than \val{zero}\,mm'', so we left that threshold out. The grid is therefore $\theta \in \{\val{grid}\}$\,mm,
+from any measurable rain to a heavy downpour.
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.75\textwidth]{fig11_threshold_grid.png}
+\caption{Share of prediction times in the training years 2017--2022 followed by more than $\theta$\,mm of rain in the
+next \val{horizon} minutes (log scale), with the number of positive cases above each bar. Blue bars are the thresholds
+we kept. The share falls steeply with $\theta$, and beyond \val{grid_max}\,mm few cases remain.
+\src{src/plot\_task2.py from src/task2\_features.py}}\label{fig:grid}
+\end{figure}
+
+\subsection{Task 2: features}
+The brief says the model should take the station, prediction time and threshold as inputs, but not whether it may also
+look at observations available at the prediction time. We built both readings behind the same interface,
+$\text{predict}(s,t,\theta)$ in \code{src/predict.py}, and report both.
+
+\emph{Model A} (strict) uses only functions of the three inputs, which makes it climatology learned by MLlib:
+\begin{itemize}
+\item the station: one-hot index, coordinates, and its wet-slot rate in the training years;
+\item the time: time of day and day of year as sine/cosine pairs, so that the end of a day sits next to the start of
+the next, plus month, hour and monsoon season;
+\item the threshold: $\theta$, $\log(1+\theta)$ and a one-hot $\theta$ class.
+\end{itemize}
+\emph{Model B} (nowcast) keeps all of A's features and, inside $\text{predict}$, also looks up what was observed up to
+$t$:
+\begin{itemize}
+\item the station's own rain in the last \val{win_list}, the minutes since its last wet slot, and how many of the
+last \val{win_slots} slots were reported;
+\item at the same slot, the maximum, mean and share wet of the \val{k_nb} nearest stations;
+\item the island-wide share of wet stations, and the maximum and mean \val{horizon}-minute totals;
+\item the difference between the rain of the last \val{horizon} minutes and $\theta$.
+\end{itemize}
+Every B feature uses only readings whose slot ends at or before $t$. We computed them with Spark window functions over
+each station's readings ordered by slot, using \code{rangeBetween} on the slot index so that a missing slot is simply
+absent from the window instead of shifting it (\code{src/task2\_features.py}).
+
+\subsection{Task 2: model, split and evaluation}\label{sec:t2model}
+\req{E9}
+We split by time: training on 2017--2022, model choice on 2023, and a single test on 2024. A random split (the
+\code{randomSplit} of Lecture 6) would put neighbouring five-minute rows of the same storm into both training and test
+and so overstate the test score.
+
+Before fitting any model we froze the evaluation plan. The split, threshold grid, sampling, features, candidate models,
+metrics, baselines and selection rule are written in \code{config/eval\_plan.json}, and we recorded the file's SHA-256
+hash (\code{\val{plan_sha}\ldots}) at \val{plan_frozen}. The training and test scripts refuse to run if the file has
+changed since then, and the test script refuses to run a second time (\code{checks/eval\_plan.py}). No result on 2024
+could therefore feed back into a modelling choice.
+
+Most prediction times are followed by no rain at all (Figure~\ref{fig:grid}), so we sample them. The sample is
+deterministic, drawn by a hash of station, slot and seed, and has two strata: \emph{active} times, with rain at the
+station in the last \val{active_hours} hours or the next \val{horizon} minutes, are sampled at rate
+\val{rate_active.train} in training, and the rest at \val{rate_inactive.train}. Every row is weighted by the inverse of
+its sampling rate, in fitting and in every metric, so all results refer to all prediction times and not only to the
+sample. Each training row is paired with one $\theta$ from the grid, while each validation and test row is scored at
+every $\theta$. This gives \val{n_train} training rows, \val{n_validation} validation rows and \val{n_test} test rows.
+
+Each candidate is an MLlib \code{Pipeline}: \code{SQLTransformer} for the derived inputs, \code{StringIndexer} for the
+station, \code{OneHotEncoder} and \code{VectorAssembler}, and then \code{LogisticRegression} or \code{GBTClassifier}
+fitted with \code{weightCol}. The saved \code{PipelineModel} therefore takes the raw columns. For each of A and B the
+candidates were logistic regression at two regularisation strengths and gradient-boosted trees, and the plan fixed the
+selection rule in advance: the lowest weighted log loss on 2023, pooled over the grid.
+
+We compare the models with two baselines, both estimated on the full, unsampled training years. \emph{Climatology} is
+the frequency of $y$ per (station, month, hour, $\theta$), shrunk toward the (month, hour, $\theta$) frequency with
+\val{clim_pseudo} pseudo-counts. \emph{Persistence} is the frequency of $y$ given whether the last \val{horizon}
+minutes at the station exceeded $\theta$.
+
+AUC-ROC and AUC-PR come from MLlib's \code{BinaryClassificationEvaluator}, with \code{weightCol}. The other metrics
+are Spark aggregations: Brier score, Brier skill against the base rate, log loss and a \val{rel_bins}-bin reliability
+table. We report every metric pooled over the grid and per $\theta$. We also count how often the predicted probability
+\emph{rises} with $\theta$, which should never happen, since a higher threshold is a rarer event. We read AUC-PR first
+because the events are rare: a model with no skill scores the base rate, not one half.
+
+% ======================================================================================================
+\section{Computing environment}
+\req{E10}\req{E2}
+\subsection{Local machine}
+All reported numbers were computed on our local machine. Every Spark job writes an \code{env.json} file when it starts
+(\code{checks/env\_capture.py}); the specification below and Table~\ref{tab:env} are read from those files.
+
+\val{env.cpu} with \val{env.ncpu} logical CPUs and \val{env.ram}\,GiB of memory, running \val{env.os}. Apache Spark
+\val{env.spark} (PySpark) on Java \val{env.java} and Python \val{env.python}, in local mode, master
+\code{\val{env.master}}: one JVM whose driver runs \val{env.parallelism} task threads, one per logical CPU, with
+driver memory \val{env.driver_mem}, \val{env.shuffle} shuffle partitions and session time zone Asia/Singapore. In
+local mode the driver also does the executors' work, so the driver memory is the memory Spark has. The recorded stages
+took about \val{env.total_min} minutes of wall time in total.
+
+\begin{table}[H]\centering\small
+\input{generated/tab_env_runs.tex}
+\caption{Local runs behind the reported outputs: one row per pipeline stage, with the run identifier (its
+\code{runs/<id>/env.json} holds the full environment) and wall time in seconds. Of the recorded stages, cleaning takes
+the longest. $^\dagger$ The fit-and-validation run started before we added wall-time capture; its per-model fit times
+are in Table~\ref{tab:val}. \src{src/report\_macros.py from runs/*/env.json}}\label{tab:env}
+\end{table}
+
+\subsection{Google Cloud Dataproc}
+\input{generated/cloud_section.tex}
+
+% ======================================================================================================
+\section{Results}
+\subsection{Task 1: patterns within a year}
+\req{E4}\req{E6}
+The year has two wet peaks and two dry spells (Figures~\ref{fig:month} and~\ref{fig:doy}). Over 2017--2024,
+\val{wettest_month} is the wettest month at \val{wettest_month_rate}\,mm per station-day and \val{driest_month} the
+driest at \val{driest_month_rate}. After November come December (\val{mrate.Dec}), April (\val{mrate.Apr}) and
+January (\val{mrate.Jan}); February (\val{mrate.Feb}) and July--August (\val{mrate.Jul}, \val{mrate.Aug}) are the dry
+spells. Grouped by monsoon season, the October--November inter-monsoon is the wettest at \val{season_rate.imii}\,mm/day
+and the south-west monsoon the driest at \val{season_rate.sw}, with the north-east monsoon (\val{season_rate.ne}) and
+the April--May inter-monsoon (\val{season_rate.imi}) in between. These are eight-year means, and single years scatter
+widely around them: the same month can be three times as wet in one year as in another.
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.66\textwidth]{fig02_monthly_cycle.png}
+\caption{Mean rainfall per station-day (mm) in each calendar month, pooled over 2017--2024 (blue) and for each single
+year (grey). The pooled cycle peaks in November and April and dips in February and July; single years spread far more
+widely than the pooled months differ from each other. \src{src/plot\_task1.py from src/task1.py}}\label{fig:month}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.66\textwidth]{fig10_day_of_year.png}
+\caption{Network rainfall (mm per station-day) through the calendar year as a \val{smooth_days}-day running mean (total
+rain over reported slots in the window), pooled over 2017--2024 (blue) and for each year (grey). The two dry spells
+fall in mid-February and around the turn of July and August. \src{src/plot\_task1.py from src/task1.py}}\label{fig:doy}
+\end{figure}
+
+Within the day, the timing depends on the season (Figure~\ref{fig:diurnal}). In the north-east monsoon and both
+inter-monsoons, rain peaks in the mid-afternoon, at \val{peak_hour.ne}, \val{peak_hour.imi} and \val{peak_hour.imii}
+SGT respectively, with the highest rate (\val{peak_rate.imii}\,mm/h) in October--November. Overnight the rate falls to
+about \val{min_rate.ne}\,mm/h. We read this as convective storms building over land in the afternoon heat. The
+south-west monsoon peaks instead at \val{peak_hour.sw} (\val{peak_rate.sw}\,mm/h, against \val{min_rate.sw} at its
+lowest hour), when squall lines that form over
+Sumatra overnight reach Singapore. Over all seasons, \val{share_12_20} of the rain falls between \val{share_win_lo} and
+\val{share_win_hi}.
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.8\textwidth]{fig05_diurnal_by_season.png}
+\caption{Rain by hour of day (SGT) in each monsoon season, 2017--2024: mean rate in mm/h (left) and share of
+five-minute slots with rain (right). Three seasons peak in the mid-afternoon; the south-west monsoon (green) peaks at
+\val{peak_hour.sw} instead. \src{src/plot\_task1.py from src/task1.py}}\label{fig:diurnal}
+\end{figure}
+
+A month's rate is the frequency of rain times its intensity, and the two wet peaks are built differently
+(Figure~\ref{fig:freqint}). Over the whole period it rains in only \val{wet_pct_all}\,\% of slots, yet
+\val{intense_share_all} of all rain falls at \val{intense_mmh}\,mm/h or more. January departs from this in one
+direction: it has the most wet slots (\val{wetpct.Jan}\,\%) but the gentlest rain, \val{intmon.Jan}\,mm/h when wet,
+and only \val{intshare.Jan} of its rain falls at \val{intense_mmh}\,mm/h or more. That is long, steady monsoon rain.
+April departs in the other: its wet slots are close to the all-period share (\val{wetpct.Apr}\,\%), but it has the
+hardest rain (\val{intmon.Apr}\,mm/h, with \val{intshare.Apr} of it at \val{intense_mmh}\,mm/h or more), which points
+to short thunderstorms.
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.85\textwidth]{fig06_frequency_intensity_month.png}
+\caption{Each calendar month, 2017--2024: share of five-minute slots with rain (\%), mean intensity of wet slots
+(mm/h), and share of the month's rain that fell in slots of at least \val{intense_mmh}\,mm/h (\%). January is wet most
+often but most gently; April has the hardest rain. \src{src/plot\_task1.py from src/task1.py}}\label{fig:freqint}
+\end{figure}
+
+Across the island, stations further west tend to be wetter, in every season (Figure~\ref{fig:map}). The correlation of
+a station's mean rate with its longitude is \val{corr_lon.ne} in the north-east monsoon and \val{corr_lon.sw} in the
+south-west monsoon, the season whose squalls arrive from the west. Over the \val{n_st_1yr} stations with at least a
+year of data, the mean rate runs from \val{st_rate_min}\,mm/day at \val{st_rate_min_id} to \val{st_rate_max}\,mm/day
+at \val{st_rate_max_id}.
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.68\textwidth]{fig09_station_map_season.png}
+\caption{Mean rainfall per station-day (mm) at each station by monsoon season, 2017--2024; $r$ is the correlation of
+the station's rate with its longitude. The west--east gradient is strongest in the south-west monsoon. \src{src/plot\_task1.py from src/task1.py}}\label{fig:map}
+\end{figure}
+
+\subsection{Task 1: changes across 2017--2024}
+\req{E5}
+Month-balanced annual rainfall per station (Figure~\ref{fig:annual}) was lowest in 2019 (\val{ann.2019}\,mm) and
+highest in 2021 and 2022 (\val{ann.2021} and \val{ann.2022}\,mm), against a 2017--2024 mean of \val{ann_mean}\,mm. We
+balance by month and divide by station because a plain network sum exaggerates the change. It puts 2021 at
+\val{naive_ratio_21_17} times 2017; per station the ratio is \val{bal_ratio_21_17}. The difference is that more
+stations reported in 2021. Restricting the calculation to the fixed panel of \val{panel_n} stations that reported in
+every year changes no annual total by more than \val{panel_maxdev}, so changes in which stations reported do not
+explain these totals.
+
+Year-to-year differences follow how often it rained much more than how hard. Across the eight years, the annual total
+correlates at \val{corr_freq} with the frequency of rain and at \val{corr_int} with its intensity. In 2019 the
+frequency index fell to \val{freqidx.2019} (2017--2024 mean = \val{index_base}) while intensity stayed at
+\val{intidx.2019}. From 2020 on, frequency stayed above the mean, reaching \val{freqidx.2023} in 2023.
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.85\textwidth]{fig04_annual_balanced.png}
+\caption{Left: month-balanced annual rainfall per station (mm), 2017--2024, for all stations (bars) and the fixed panel
+of \val{panel_n} stations (diamonds). Right: frequency of wet slots and intensity when wet, as indices with the
+2017--2024 mean at \val{index_base}, for all stations (solid) and the fixed panel (dotted). The 2019 dip is a drop in
+frequency, not intensity, and the panel tracks the full network in every year. \src{src/plot\_task1.py from src/task1.py}}\label{fig:annual}
+\end{figure}
+
+The seasonal anomalies (Figure~\ref{fig:season}) show which part of the year made each year wet or dry. In 2019 every
+season was dry, the south-west monsoon most of all (\val{sanom.sw.2019}\,\%). The south-west monsoons of 2020 and 2021
+were wet (\val{sanom.sw.2020}\,\% and \val{sanom.sw.2021}\,\%), as were the October--November inter-monsoon of 2022
+(\val{sanom.imii.2022}\,\%) and the north-east monsoon of 2023 (\val{sanom.ne.2023}\,\%). Single months
+(Figure~\ref{fig:anom}) swing much more, and some of those cells are distorted by gaps
+(Section~\ref{sec:gapmonths}).
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.72\textwidth]{fig08_season_anomaly.png}
+\caption{Seasonal rainfall anomaly for each year 2017--2024, as \% of the 2017--2024 mean for that season (blue wetter,
+red drier). 2019 is dry in all four seasons; the largest wet anomaly is the 2023 north-east monsoon. \src{src/plot\_task1.py from src/task1.py}}\label{fig:season}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.8\textwidth]{fig03_year_month_anomaly.png}
+\caption{Monthly rainfall anomaly for each year 2017--2024, as \% of the 2017--2024 mean for that calendar month.
+* fewer than \val{low_cov_days} days of data; $\dagger$ the comparison with official MSS records finds our rate
+distorted by gaps (Table~\ref{tab:gapmonths}). The marked cells should not be read at face value. \src{src/plot\_task1.py from src/task1.py and src/mss\_validate.py}}\label{fig:anom}
+\end{figure}
+
+Heavy rain was rarest in 2019 and most frequent in 2021 and 2022 (Figure~\ref{fig:ext}). Hours with at least
+\val{heavy_hour_mm}\,mm numbered \val{heavyh.2019} per \val{per_hours} complete station-hours in 2019, against
+\val{heavyh.2017} in 2017 and \val{heavyh.2018} in 2018, and \val{heavyh.2022} in 2022. Days with at least
+\val{heavy_day_mm}\,mm numbered \val{heavyd.2019} per \val{per_days} complete station-days in 2019, against
+\val{heavyd.2017} and \val{heavyd.2018} in the two years before, and \val{heavyd.2021} in 2021. Across stations, the median of each station's annual
+maximum hour rose from \val{medmaxhour.2017}\,mm in 2017 to \val{medmaxhour.2022}\,mm in 2022, and the largest single
+hour in the data (\val{maxhour.2022}\,mm) fell in 2022. The official MSS records show the same jump on the days both
+sources cover completely: \val{mss_heavyrate_off.2019} heavy days per \val{per_days} matched station-days in 2019 and
+\val{mss_heavyrate_off.2021} in 2021 (ours: \val{mss_heavyrate_ours.2019} and \val{mss_heavyrate_ours.2021}), so it is
+not an artefact of our data. We do not call it a trend. Eight years is a short record, and the years with the most
+heavy rain were also the wettest overall.
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.85\textwidth]{fig07_extremes_by_year.png}
+\caption{Rain extremes by year, 2017--2024: hours with at least \val{heavy_hour_mm}\,mm per \val{per_hours} complete
+station-hours (left), days with at least \val{heavy_day_mm}\,mm per \val{per_days} complete station-days (middle), and
+the spread across stations of each station's largest hourly total (right). Both counts are lowest in 2019 and highest
+in 2021--2022. \src{src/plot\_task1.py from src/task1.py}}\label{fig:ext}
+\end{figure}
+
+\subsection{Task 1: months that the gaps distort}\label{sec:gapmonths}
+A rate computed over reported slots is unbiased only if the missing days are like the reported ones. To find the
+months where they are not, we compared each year-month's rate with the official MSS rate on the same station-months
+(Table~\ref{tab:gapmonths}). In most months the two agree (median ratio \val{mss_month_median_ratio}). Where they
+disagree, the month has large gaps.
+
+January 2021 is the clearest case. Figure~\ref{fig:anom} shows it only \val{manom.2021.Jan}\,\% above an average
+January, yet MSS reported it as Singapore's wettest January on record. On the same stations the official rate is
+\val{mssoff.2021.Jan}\,mm/day against our \val{mssours.2021.Jan} (ratio \val{mssratio.2021.Jan}). The network was down on
+\val{jan21_gap_days} (from \val{jan21_last} on \val{jan21_last_day}), and those were the wettest days of the month.
+Measured against our average January, the official figure would be \val{mssoffanom.2021.Jan}\,\%. Our 2021 annual
+total (\val{ann.2021}\,mm) is too low for the same reason.
+
+August 2018, with data on only \val{days.2018.aug} days, shows as \val{manom.2018.Aug}\,\% in Figure~\ref{fig:anom}.
+That is the gap, not the weather: on the same stations the official rate is \val{mssoff.2018.Aug}\,mm/day against our
+\val{mssours.2018.Aug}.
+
+January 2023 is distorted the other way. With \val{days.2023.jan} days of data network-wide, our rate is
+\val{mssratio.2023.Jan} times the official one on the same station-months, because the days we lack were drier than the
+days we have. Figure~\ref{fig:anom} therefore shows the month as wetter than usual (\val{manom.2023.Jan}\,\%), while
+officially it was drier (\val{mssoffanom.2023.Jan}\,\%). Changi (S24) is missing for most of the month
+(Table~\ref{tab:gaps}).
+
+The two rates also differ by more than \val{gap_ratio_pct}\,\% in \val{mss_odd_n} months without a large gap:
+\val{mss_odd_list}. Partial days and the different spread of the two networks over the island are the likely causes.
+The fixed-panel check covers the annual totals and the frequency and intensity indices; any claim about a single
+month should be read together with Table~\ref{tab:gapmonths}.
+
+\begin{table}[H]\centering\small
+\input{generated/tab_gapmonths.tex}
+\caption{Months whose rate differs by more than \val{gap_ratio_pct}\,\% from the official rate on the same
+station-months while more than \val{gap_missed_pct}\,\% of the official rain fell on days we lack. A ratio below one
+means our rate is too low. \src{src/mss\_validate.py}}\label{tab:gapmonths}
+\end{table}
+
+\subsection{Task 2: model choice on 2023}
+\req{E9}
+Table~\ref{tab:val} gives every candidate and both baselines on the validation year, pooled over the threshold grid
+(base rate \val{val_base}).
+
+\begin{table}[H]\centering\scriptsize
+\resizebox{\textwidth}{!}{\input{generated/tab_val.tex}}
+\caption{Validation year 2023: every candidate and both baselines, weighted, pooled over $\theta$. BSS: Brier skill
+score against the base rate. ``$p$ rises with $\theta$'': share of adjacent-$\theta$ pairs where the predicted
+probability goes up, which should never happen. The selection rule takes the lowest log loss. \src{src/task2\_train.py}}\label{tab:val}
+\end{table}
+
+The two baselines are simple rules. Climatology predicts the training-years frequency of the event for that
+station, month and hour; persistence assumes the last half hour repeats. Model A is no better than climatology: AUC-PR
+\val{v.A.all.aucpr} against \val{v.clim.all.aucpr}, and Brier skill \val{v.A.all.bss} against \val{v.clim.all.bss}.
+Given only the station, the time and $\theta$, the best possible answer is the climatological frequency, and MLlib
+learns roughly that. Model B is well ahead of both baselines. Its AUC-PR is \val{v.B.all.aucpr}, against
+\val{v.pers.all.aucpr} for persistence and \val{v.clim.all.aucpr} for climatology, and its Brier skill
+\val{v.B.all.bss}, against \val{v.pers.all.bss} and \val{v.clim.all.bss}.
+
+The gradient-boosted version of B ranks events better: AUC-PR \val{v.Bgbt.all.aucpr} against \val{v.B.all.aucpr}
+for the logistic regression, and Brier score \val{v.Bgbt.all.brier} against \val{v.B.all.brier}.
+Our selection rule, written into \code{config/eval\_plan.json} before any model was fitted, takes the lowest validation
+log loss, and that is logistic regression (\val{v.B.all.ll} against \val{v.Bgbt.all.ll}). We kept the rule's choice.
+Switching to the trees after seeing the 2023 results would have made the validation year part of the model search,
+which is what fixing the rule in advance was meant to prevent.
+
+The trees lose on calibration (Figure~\ref{fig:gbt}). They over-predict, more so as $\theta$ rises: at
+$\theta=\val{grid_max}$\,mm their mean prediction is \val{v.Bgbt.20.meanp} where the event rate is
+\val{v.Bgbt.20.base}. For \val{mono.Bgbt} of adjacent threshold pairs they also give a \emph{higher} probability to the
+higher threshold, which cannot be right. Logistic regression is monotone in $\theta$ by construction here and never
+does this. We did not evaluate the trees on 2024.
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.7\textwidth]{fig15_gbt_calibration.png}
+\caption{Validation 2023: mean predicted probability and observed event rate at each threshold $\theta$ (log scale),
+for the chosen Model B (logistic regression) and its gradient-boosted alternative. The logistic regression follows the
+observed rate; the trees over-predict, and more so at higher $\theta$. \src{src/plot\_task2.py from src/task2\_train.py}}\label{fig:gbt}
+\end{figure}
+
+\subsection{Task 2: the test year 2024 (evaluated once)}
+We ran the test once, at \val{test_started}, with the plan unchanged since it was fixed and the chosen models loaded
+from disk without refitting. Table~\ref{tab:testpooled} gives the pooled results and Table~\ref{tab:test} the results
+per threshold.
+
+\begin{table}[H]\centering\scriptsize
+\input{generated/tab_testpooled.tex}
+\caption{Test year 2024, evaluated once: the chosen models and both baselines, weighted, pooled over $\theta$. \src{src/task2\_test.py}}\label{tab:testpooled}
+\end{table}
+\begin{table}[H]\centering\scriptsize
+\input{generated/tab_test.tex}
+\caption{Test 2024 per threshold: AUC-PR and Brier skill score (BSS) of the baselines and the chosen models. B's
+AUC-PR stays far above the base rate at every threshold, but its BSS falls to about zero at the top one. \src{src/task2\_test.py}}\label{tab:test}
+\end{table}
+
+Model B's validation results held on the new year. On 2024 its AUC-PR is \val{t.B.all.aucpr} (validation
+\val{v.B.all.aucpr}), against \val{t.pers.all.aucpr} for persistence and \val{t.clim.all.aucpr} for climatology. Its
+Brier skill is \val{t.B.all.bss} (validation \val{v.B.all.bss}), against \val{t.pers.all.bss} for persistence and
+\val{t.clim.all.bss} for climatology. Model A again sits at the level of climatology: AUC-PR \val{t.A.all.aucpr}
+against \val{t.clim.all.aucpr}, Brier skill \val{t.A.all.bss} against \val{t.clim.all.bss}.
+
+B's skill falls as the event gets rarer (Table~\ref{tab:test}, Figure~\ref{fig:thr}). Its AUC-PR is
+\val{t.B.0.aucpr} for any rain, \val{t.B.5.aucpr} for more than \val{example_th}\,mm and \val{t.B.20.aucpr} for more
+than \val{grid_max}\,mm, against base rates of \val{t.B.0.base}, \val{t.B.5.base} and \val{t.B.20.base}. At the top
+threshold B still ranks the downpours far above the base rate and above persistence (AUC-PR \val{t.pers.20.aucpr}),
+but its Brier skill is about zero (\val{t.B.20.bss}, against \val{t.pers.20.bss} for persistence): the probabilities
+it gives are no more accurate than the base rate itself, and slightly less accurate than persistence. A downpour within half an hour is hard to
+foresee from rain gauges alone.
+
+Pooled over thresholds, B's probabilities are close to calibrated (Figure~\ref{fig:rel}). In no reliability bin does
+the mean prediction differ from the observed frequency by more than \val{t_rel_B_maxgap}.
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.8\textwidth]{fig12_per_threshold.png}
+\caption{AUC-PR (top, log scale; dashed line: the base rate, i.e.\ no skill) and Brier skill score (bottom) at each
+threshold, validation 2023 (left) and test 2024 (right). The two years look alike. B leads on AUC-PR at every
+threshold, while its Brier skill drops to about zero at \val{grid_max}\,mm. \src{src/plot\_task2.py from src/task2\_train.py and src/task2\_test.py}}\label{fig:thr}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.72\textwidth]{fig13_reliability.png}
+\caption{Reliability, validation 2023 (left) and test 2024 (right): observed frequency against mean predicted
+probability per bin, pooled over thresholds (bins with at least \val{rel_min_rows} rows). A calibrated model lies on
+the diagonal; B stays close to it up to the highest bin. \src{src/plot\_task2.py}}\label{fig:rel}
+\end{figure}
+
+Figure~\ref{fig:coef} shows what Model B relies on, as standardised coefficients: the change in log-odds for a
+one-standard-deviation change in each input. Apart from the threshold terms, which set how the probability falls with
+$\theta$, the largest are
+\begin{itemize}
+\item the time since the station was last wet (\val{coefB.mins_since_wet});
+\item the island-wide maximum \val{horizon}-minute total (\val{coefB.isl_max_r30});
+\item the island-wide share of stations that were wet in the last \val{horizon} minutes (\val{coefB.isl_wet30}), with
+the share wet at $t$ close behind;
+\item the station's rain in the last five minutes (\val{coefB.log1p_r5}).
+\end{itemize}
+Rain at the station and across the island up to $t$ is what makes the next half hour predictable. The hour and
+day-of-year terms are much smaller once these are known.
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.72\textwidth]{fig14_coefficients_B.png}
+\caption{Model B (logistic regression): the \val{n_coef_shown} largest standardised coefficients, as change in log-odds
+per standard deviation of the input (blue raises the probability, orange lowers it). After the threshold terms, recent
+rain at the station and across the island dominates; the calendar terms are small. \src{src/plot\_task2.py from src/task2\_coefficients.py}}\label{fig:coef}
+\end{figure}
+
+% ======================================================================================================
+\section{Declaration of AI use}
+\req{E11}
+We used Claude Code (Anthropic, Claude Opus 5.5) as a coordinating session and a delegated builder session to plan the
+work, write and run the Spark ingestion, cleaning, analysis and MLlib code, run the experiments, verify the data
+against official records and draft this report. We directed the work and are responsible for the content and quality
+of this submission.
+
+% ======================================================================================================
+\section{Additional work, observations and limitations}
+\req{E12}
+\subsection{Additional work}
+\begin{itemize}
+\item We checked the dataset against the official MSS daily station records (Section~\ref{sec:mss}). This is how we
+found the January 2021 outage and the months in Table~\ref{tab:gapmonths}.
+\item We recomputed the annual totals and the frequency and intensity indices on a fixed panel of \val{panel_n}
+stations, to separate changes in rainfall from changes in the network (Figure~\ref{fig:annual}).
+\item Before relying on each pipeline check, we fed it a deliberately broken input and confirmed that it stopped the
+run (\code{checks/qualify.py}): a missing year, one unaccounted row in the cleaning ledger, a random split, an edited
+analysis plan, a second test run, a 2024 row in the fitting table, and a hand-typed number in this report. The log is
+\code{outputs/qualification/qualification.log}.
+\item Before the single 2024 run, we ran the test script on 2023. It rebuilt the validation sample row for row, so we
+knew the test path worked before it touched 2024.
+\end{itemize}
+
+\subsection{Limitations}
+\begin{enumerate}
+\item \emph{Gaps are not random.} A network outage on \val{jan21_gap_days} 2021 removed the wettest days of a record
+month, and single stations fall silent for weeks at a time. Rates over reported slots cannot recover rain that was
+never recorded, so the months in Table~\ref{tab:gapmonths} are misstated: most read too dry, and January 2023 too wet.
+\item \emph{No quality control in the source.} Some complete days are simply wrong: a gauge reports zero through a
+storm, or reports a day of rain that never fell (\val{mss_spur.st} on \val{mss_spur.date}). In all, \val{mss_big20}
+station-days differ from MSS by more than \val{heavy_hour_mm}\,mm. Every value on such a day is plausible on its own,
+so our rules cannot flag the day without an outside reference. These days remain in both tasks, but there are too few
+of them to change the extreme-rain counts (Section~\ref{sec:mss}).
+\item \emph{Measurement change in 2020.} The share of positive readings on the \val{gauge_step}\,mm grid drops from
+\val{mult02.2019} in 2019 to \val{mult02.2021} in 2021. The fixed panel holds the stations constant, not the
+instruments, so it cannot show whether this change moved the across-year results. Statistics of small amounts, such as
+the share of very light rain, are the most likely to be affected.
+\item \emph{Eight years.} The across-year differences (a dry 2019, wet years in 2020--2022) are in the data, but eight
+years cannot separate a trend from natural variability such as ENSO and the Indian Ocean Dipole.
+\item \emph{Model A is limited by its inputs, not by MLlib.} Under the strict reading of the brief, the station, the
+time and the threshold carry little information about the next half hour, so Model A ends up as a calibrated
+climatology.
+\item \emph{Model B needs live data.} It uses the station's and its neighbours' readings up to $t$, so it only works
+where those arrive in real time. If the station has no reading at $t$, \code{predict.py} falls back to Model A.
+\item \emph{Sampling.} The models were fitted on a weighted sample of prediction times (Section~\ref{sec:t2model}),
+not on all \val{f30_rows} labelled training times. The trees in particular might gain from more rows; we did not test
+this.
+\item \emph{Calibration of the trees.} A calibration step fitted on 2023 might remove the trees' over-prediction and
+let them beat logistic regression on log loss as well. We did not try it: the plan fixed before fitting had no such
+step, and adding one after seeing 2023 would have meant tuning on the validation year.
+\input{generated/cloud_limitation.tex}
+\end{enumerate}
+
+% ======================================================================================================
+\section{Submission contents}
+\req{E13}\req{E14}
+\begin{itemize}
+\item \code{README.md}: setup, every stage in order with its runtime, how to load and use the trained models, the
+Dataproc script and the checks.
+\item \code{src/} (pipeline), \code{checks/} (the checks that stop the pipeline on bad input), \code{config/} (the
+analysis plan fixed before fitting, and the record of the single test run), \code{cloud/} (Dataproc).
+\item The trained models: \code{models/model\_A} and \code{models/model\_B}, saved with \code{PipelineModel.save}. Use
+\code{src/predict.py -{}-station S24 -{}-time 2024-06-01T15:00 -{}-threshold 0.5 5}.
+\item This report, built with Tectonic from \code{report/}, with every number generated into \code{report/generated/}.
+\end{itemize}
+
+\end{document}

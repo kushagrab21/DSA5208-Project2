@@ -1,0 +1,628 @@
+{
+  "name" : "org.apache.hadoop.fs.s3a.commit.files.SuccessData/1",
+  "timestamp" : 1792238010675,
+  "success" : true,
+  "date" : "2026-10-17T11:53:30.675693295Z[Etc/UTC]",
+  "hostname" : "dsa5208-p2-m",
+  "committer" : "org.apache.hadoop.mapreduce.lib.output.committer.manifest.ManifestCommitter",
+  "jobId" : "dc83bd4b-2565-413c-8256-1aa351123bc8",
+  "jobIdSource" : "spark.sql.sources.writeJobUUID",
+  "metrics" : { },
+  "diagnostics" : {
+    "principal" : "root",
+    "stage" : "committer_commit_job"
+  },
+  "filenames" : [ "gs://dsa5208-p2-rain-kb-dsa5208-p2/p2/runs-20261017T174507/models/model_A/metadata/part-00000-c34d6a09-0da1-4aef-8aaf-3779c415e911-c000.txt" ],
+  "iostatistics" : {
+    "counters" : {
+      "task_stage_save_summary_file.failures" : 0,
+      "committer_commit_job" : 1,
+      "op_msync" : 1,
+      "op_msync.failures" : 0,
+      "job_stage_optional_validate_output" : 0,
+      "op_load_manifest.failures" : 0,
+      "job_stage_create_target_dirs" : 1,
+      "op_load_all_manifests" : 1,
+      "op_rename.failures" : 0,
+      "op_delete_dir" : 0,
+      "job_stage_load_manifests" : 1,
+      "committer_commit_job.failures" : 0,
+      "task_stage_save_task_manifest" : 0,
+      "job_stage_rename_files" : 1,
+      "committer_bytes_committed" : 331,
+      "op_create_one_directory.failures" : 0,
+      "op_mkdirs.failures" : 0,
+      "committer_files_committed" : 1,
+      "store_io_rate_limited.failures" : 0,
+      "op_load_all_manifests.failures" : 0,
+      "committer_task_manifest_file_size" : 19448,
+      "task_stage_save_manifest" : 1,
+      "task_stage_scan_directory" : 1,
+      "task_stage_setup.failures" : 0,
+      "op_is_file.failures" : 0,
+      "op_create_directories.failures" : 0,
+      "committer_task_file_count" : 2,
+      "op_create_one_directory" : 0,
+      "task_stage_save_manifest.failures" : 0,
+      "committer_task_directory_depth" : 1,
+      "job_stage_setup.failures" : 0,
+      "job_stage_load_manifests.failures" : 0,
+      "op_directory_scan" : 0,
+      "op_rename" : 0,
+      "job_stage_abort" : 0,
+      "op_get_file_status" : 3,
+      "commit_file_rename_recovered" : 0,
+      "store_io_rate_limited" : 0,
+      "op_delete_file_under_destination.failures" : 0,
+      "op_prepare_dir_ancestors" : 0,
+      "job_stage_abort.failures" : 0,
+      "op_is_directory.failures" : 0,
+      "job_stage_optional_validate_output.failures" : 0,
+      "task_stage_setup" : 1,
+      "task_stage_save_summary_file" : 0,
+      "commit_file_rename.failures" : 0,
+      "op_delete" : 1,
+      "op_delete_file_under_destination" : 0,
+      "job_stage_save_success_marker" : 0,
+      "commit_file_rename" : 1,
+      "op_directory_scan.failures" : 0,
+      "op_mkdir_returned_false" : 0,
+      "object_list_request.failures" : 0,
+      "op_load_manifest" : 1,
+      "object_continue_list_request.failures" : 0,
+      "committer_tasks_completed" : 0,
+      "job_stage_rename_files.failures" : 0,
+      "task_stage_scan_directory.failures" : 0,
+      "op_get_file_status.failures" : 3,
+      "op_delete.failures" : 0,
+      "object_list_request" : 0,
+      "op_list_status" : 2,
+      "task_stage_abort_task.failures" : 0,
+      "job_stage_setup" : 1,
+      "task_stage_commit" : 1,
+      "committer_tasks_failed" : 0,
+      "task_stage_commit.failures" : 0,
+      "task_stage_abort_task" : 0,
+      "committer_task_file_size" : 331,
+      "job_stage_create_target_dirs.failures" : 0,
+      "committer_task_directory_count" : 0,
+      "object_continue_list_request" : 0,
+      "job_stage_save_success_marker.failures" : 0,
+      "op_create_directories" : 1,
+      "op_mkdir_returned_false.failures" : 0,
+      "task_stage_save_task_manifest.failures" : 0,
+      "job_stage_cleanup.failures" : 0,
+      "job_stage_cleanup" : 0,
+      "op_delete_dir.failures" : 0,
+      "op_mkdirs" : 3,
+      "op_is_directory" : 0,
+      "op_prepare_dir_ancestors.failures" : 0,
+      "op_is_file" : 0,
+      "op_list_status.failures" : 0
+    },
+    "gauges" : {
+      "stage.job_stage_load_manifests.total.memory" : 1468006400,
+      "stage.job_stage_create_target_dirs.heap.memory" : 431570800,
+      "stage.job_stage_create_target_dirs.total.memory" : 1468006400,
+      "stage.job_stage_create_target_dirs.free.memory" : 1036435600,
+      "stage.setup.free.memory" : 13792432,
+      "stage.job_stage_load_manifests.free.memory" : 1036435600,
+      "stage.setup.total.memory" : 1388314624,
+      "stage.job_stage_rename_files.heap.memory" : 433051776,
+      "stage.job_stage_rename_files.total.memory" : 1468006400,
+      "stage.setup.heap.memory" : 1374522192,
+      "stage.job_stage_load_manifests.heap.memory" : 431570800,
+      "stage.job_stage_rename_files.free.memory" : 1034954624
+    },
+    "minimums" : {
+      "task_stage_commit.min" : 47,
+      "task_stage_save_task_manifest.min" : -1,
+      "op_create_directories.failures.min" : -1,
+      "op_is_directory.failures.min" : -1,
+      "job_stage_abort.min" : -1,
+      "task_stage_save_summary_file.min" : -1,
+      "task_stage_save_task_manifest.failures.min" : -1,
+      "object_list_request.min" : -1,
+      "object_continue_list_request.failures.min" : -1,
+      "op_prepare_dir_ancestors.failures.min" : -1,
+      "object_list_request.failures.min" : -1,
+      "op_directory_scan.min" : -1,
+      "job_stage_cleanup.min" : -1,
+      "op_list_status.min" : 41,
+      "task_stage_setup.failures.min" : -1,
+      "op_mkdirs.failures.min" : -1,
+      "job_stage_abort.failures.min" : -1,
+      "committer_bytes_committed" : -1,
+      "job_stage_rename_files.failures.min" : -1,
+      "op_is_file.failures.min" : -1,
+      "committer_files_committed" : -1,
+      "job_stage_rename_files.min" : 127,
+      "op_load_all_manifests.min" : 293,
+      "op_rename.failures.min" : -1,
+      "task_stage_setup.min" : 338,
+      "op_delete_file_under_destination.failures.min" : -1,
+      "job_stage_create_target_dirs.min" : 1,
+      "commit_file_rename.failures.min" : -1,
+      "op_msync.failures.min" : -1,
+      "job_stage_cleanup.failures.min" : -1,
+      "job_stage_save_success_marker.failures.min" : -1,
+      "store_io_rate_limited.min" : -1,
+      "job_stage_save_success_marker.min" : -1,
+      "committer_task_manifest_file_size" : 19448,
+      "job_stage_create_target_dirs.failures.min" : -1,
+      "op_load_manifest.failures.min" : -1,
+      "committer_commit_job.min" : -1,
+      "op_delete_dir.failures.min" : -1,
+      "committer_commit_job.failures.min" : -1,
+      "op_delete.min" : 30,
+      "op_prepare_dir_ancestors.min" : -1,
+      "job_stage_setup.min" : 323,
+      "committer_task_file_count" : 1,
+      "committer_task_directory_depth" : 1,
+      "op_get_file_status.min" : -1,
+      "job_stage_load_manifests.min" : 424,
+      "op_load_all_manifests.failures.min" : -1,
+      "job_stage_optional_validate_output.failures.min" : -1,
+      "op_create_one_directory.failures.min" : -1,
+      "op_get_file_status.failures.min" : 68,
+      "op_load_manifest.min" : 279,
+      "op_create_one_directory.min" : -1,
+      "commit_file_rename_recovered" : -1,
+      "op_mkdirs.min" : 268,
+      "task_stage_save_summary_file.failures.min" : -1,
+      "task_stage_scan_directory.failures.min" : -1,
+      "op_msync.min" : 0,
+      "op_mkdir_returned_false.min" : -1,
+      "op_is_file.min" : -1,
+      "store_io_rate_limited.failures.min" : -1,
+      "task_stage_save_manifest.failures.min" : -1,
+      "op_delete_dir.min" : -1,
+      "op_list_status.failures.min" : -1,
+      "task_stage_abort_task.min" : -1,
+      "op_directory_scan.failures.min" : -1,
+      "committer_tasks_completed" : -1,
+      "commit_file_rename.min" : 106,
+      "op_delete_file_under_destination.min" : -1,
+      "object_continue_list_request.min" : -1,
+      "committer_tasks_failed" : -1,
+      "job_stage_load_manifests.failures.min" : -1,
+      "committer_task_file_size" : 331,
+      "job_stage_optional_validate_output.min" : -1,
+      "job_stage_setup.failures.min" : -1,
+      "committer_task_directory_count" : 0,
+      "op_delete.failures.min" : -1,
+      "task_stage_commit.failures.min" : -1,
+      "op_create_directories.min" : 1,
+      "task_stage_abort_task.failures.min" : -1,
+      "op_mkdir_returned_false.failures.min" : -1,
+      "task_stage_scan_directory.min" : 47,
+      "op_is_directory.min" : -1,
+      "task_stage_save_manifest.min" : -1,
+      "op_rename.min" : -1
+    },
+    "maximums" : {
+      "job_stage_cleanup.max" : -1,
+      "op_prepare_dir_ancestors.max" : -1,
+      "job_stage_load_manifests.max" : 424,
+      "op_load_all_manifests.failures.max" : -1,
+      "op_mkdir_returned_false.failures.max" : -1,
+      "job_stage_rename_files.failures.max" : -1,
+      "op_create_one_directory.max" : -1,
+      "op_is_file.failures.max" : -1,
+      "op_is_directory.failures.max" : -1,
+      "op_msync.max" : 0,
+      "op_msync.failures.max" : -1,
+      "task_stage_save_summary_file.max" : -1,
+      "job_stage_save_success_marker.max" : -1,
+      "object_list_request.failures.max" : -1,
+      "committer_bytes_committed" : -1,
+      "op_prepare_dir_ancestors.failures.max" : -1,
+      "committer_files_committed" : -1,
+      "job_stage_optional_validate_output.max" : -1,
+      "job_stage_setup.max" : 323,
+      "task_stage_save_task_manifest.max" : -1,
+      "op_directory_scan.max" : -1,
+      "job_stage_optional_validate_output.failures.max" : -1,
+      "op_mkdirs.max" : 268,
+      "task_stage_abort_task.max" : -1,
+      "committer_task_manifest_file_size" : 19448,
+      "op_create_one_directory.failures.max" : -1,
+      "op_get_file_status.failures.max" : 68,
+      "commit_file_rename.max" : 106,
+      "op_delete_file_under_destination.max" : -1,
+      "committer_task_file_count" : 1,
+      "op_create_directories.failures.max" : -1,
+      "op_rename.failures.max" : -1,
+      "committer_task_directory_depth" : 1,
+      "op_delete_file_under_destination.failures.max" : -1,
+      "job_stage_abort.max" : -1,
+      "commit_file_rename.failures.max" : -1,
+      "job_stage_create_target_dirs.failures.max" : -1,
+      "op_delete_dir.max" : -1,
+      "op_is_file.max" : -1,
+      "commit_file_rename_recovered" : -1,
+      "job_stage_save_success_marker.failures.max" : -1,
+      "op_directory_scan.failures.max" : -1,
+      "op_delete_dir.failures.max" : -1,
+      "op_delete.max" : 30,
+      "object_list_request.max" : -1,
+      "task_stage_setup.max" : 338,
+      "committer_commit_job.max" : -1,
+      "op_get_file_status.max" : -1,
+      "op_delete.failures.max" : -1,
+      "object_continue_list_request.max" : -1,
+      "op_is_directory.max" : -1,
+      "task_stage_save_manifest.max" : -1,
+      "task_stage_scan_directory.failures.max" : -1,
+      "op_list_status.failures.max" : -1,
+      "store_io_rate_limited.max" : -1,
+      "job_stage_create_target_dirs.max" : 1,
+      "job_stage_cleanup.failures.max" : -1,
+      "op_mkdir_returned_false.max" : -1,
+      "task_stage_save_summary_file.failures.max" : -1,
+      "committer_tasks_completed" : -1,
+      "op_load_manifest.max" : 279,
+      "op_load_manifest.failures.max" : -1,
+      "store_io_rate_limited.failures.max" : -1,
+      "committer_commit_job.failures.max" : -1,
+      "task_stage_save_manifest.failures.max" : -1,
+      "op_create_directories.max" : 1,
+      "task_stage_commit.failures.max" : -1,
+      "task_stage_abort_task.failures.max" : -1,
+      "task_stage_setup.failures.max" : -1,
+      "op_mkdirs.failures.max" : -1,
+      "committer_tasks_failed" : -1,
+      "op_list_status.max" : 41,
+      "committer_task_file_size" : 331,
+      "task_stage_scan_directory.max" : 47,
+      "job_stage_rename_files.max" : 127,
+      "op_rename.max" : -1,
+      "committer_task_directory_count" : 0,
+      "op_load_all_manifests.max" : 293,
+      "job_stage_load_manifests.failures.max" : -1,
+      "job_stage_abort.failures.max" : -1,
+      "job_stage_setup.failures.max" : -1,
+      "object_continue_list_request.failures.max" : -1,
+      "task_stage_save_task_manifest.failures.max" : -1,
+      "task_stage_commit.max" : 47
+    },
+    "meanstatistics" : {
+      "commit_file_rename.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "task_stage_save_manifest.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "job_stage_optional_validate_output.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "job_stage_save_success_marker.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_rename.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_load_manifest.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_is_directory.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_create_one_directory.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "commit_file_rename.mean" : {
+        "samples" : 1,
+        "sum" : 106
+      },
+      "op_rename.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_mkdir_returned_false.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "job_stage_rename_files.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "job_stage_load_manifests.mean" : {
+        "samples" : 1,
+        "sum" : 424
+      },
+      "committer_bytes_committed" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "job_stage_cleanup.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_delete.mean" : {
+        "samples" : 1,
+        "sum" : 30
+      },
+      "task_stage_setup.mean" : {
+        "samples" : 1,
+        "sum" : 338
+      },
+      "committer_files_committed" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "task_stage_save_task_manifest.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_load_manifest.mean" : {
+        "samples" : 1,
+        "sum" : 279
+      },
+      "task_stage_abort_task.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "store_io_rate_limited.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_mkdir_returned_false.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "committer_task_manifest_file_size" : {
+        "samples" : 1,
+        "sum" : 19448
+      },
+      "op_is_directory.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "task_stage_scan_directory.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "task_stage_setup.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_mkdirs.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "job_stage_abort.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "task_stage_save_summary_file.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "committer_task_file_count" : {
+        "samples" : 2,
+        "sum" : 2
+      },
+      "object_list_request.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "committer_task_directory_depth" : {
+        "samples" : 1,
+        "sum" : 1
+      },
+      "task_stage_save_task_manifest.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_is_file.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "commit_file_rename_recovered" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_prepare_dir_ancestors.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "task_stage_save_manifest.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "job_stage_setup.mean" : {
+        "samples" : 1,
+        "sum" : 323
+      },
+      "object_list_request.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_get_file_status.failures.mean" : {
+        "samples" : 3,
+        "sum" : 131
+      },
+      "task_stage_commit.mean" : {
+        "samples" : 1,
+        "sum" : 47
+      },
+      "object_continue_list_request.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "job_stage_cleanup.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "job_stage_create_target_dirs.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_delete_file_under_destination.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_directory_scan.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_delete_dir.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_get_file_status.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "job_stage_create_target_dirs.mean" : {
+        "samples" : 1,
+        "sum" : 1
+      },
+      "committer_tasks_completed" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "job_stage_abort.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_create_directories.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_list_status.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_load_all_manifests.mean" : {
+        "samples" : 1,
+        "sum" : 293
+      },
+      "job_stage_save_success_marker.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "committer_commit_job.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_is_file.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_create_one_directory.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_load_all_manifests.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_directory_scan.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_mkdirs.mean" : {
+        "samples" : 3,
+        "sum" : 496
+      },
+      "store_io_rate_limited.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "job_stage_load_manifests.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_list_status.mean" : {
+        "samples" : 2,
+        "sum" : 74
+      },
+      "op_prepare_dir_ancestors.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "committer_commit_job.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "committer_tasks_failed" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "committer_task_file_size" : {
+        "samples" : 1,
+        "sum" : 331
+      },
+      "job_stage_optional_validate_output.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "committer_task_directory_count" : {
+        "samples" : 2,
+        "sum" : 0
+      },
+      "op_create_directories.mean" : {
+        "samples" : 1,
+        "sum" : 1
+      },
+      "task_stage_scan_directory.mean" : {
+        "samples" : 1,
+        "sum" : 47
+      },
+      "op_delete_file_under_destination.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "task_stage_commit.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "object_continue_list_request.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "task_stage_save_summary_file.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "task_stage_abort_task.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "job_stage_rename_files.mean" : {
+        "samples" : 1,
+        "sum" : 127
+      },
+      "op_delete.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_msync.mean" : {
+        "samples" : 1,
+        "sum" : 0
+      },
+      "op_msync.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "op_delete_dir.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      },
+      "job_stage_setup.failures.mean" : {
+        "samples" : 0,
+        "sum" : 0
+      }
+    }
+  }
+}

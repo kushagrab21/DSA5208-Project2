@@ -1,0 +1,8 @@
+{
+ "sha256": "fd017e8e1abb21f721d274b2e711ac31bf3ab4f8998d442fbbb210f2897486db",
+ "frozen_at": "2026-10-17T14:34:24+08:00",
+ "plan_file": "config/eval_plan.json",
+ "test_years": [
+  2024
+ ]
+}

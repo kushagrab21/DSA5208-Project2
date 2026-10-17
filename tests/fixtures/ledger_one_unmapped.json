@@ -1,0 +1,72 @@
+{
+ "rows_in": 48538713,
+ "rows_out": 48538627,
+ "rules": [
+  {
+   "rule": "corrupt",
+   "removed": 0,
+   "of": 48538713,
+   "why": "line not parseable with the explicit schema"
+  },
+  {
+   "rule": "missing",
+   "removed": 0,
+   "of": 48538713,
+   "why": "station, timestamp or value missing"
+  },
+  {
+   "rule": "type_unit",
+   "removed": 0,
+   "of": 48538713,
+   "why": "not a 5-minute rainfall total in mm"
+  },
+  {
+   "rule": "bad_ts",
+   "removed": 0,
+   "of": 48538713,
+   "why": "timestamp not ISO 8601 with offset"
+  },
+  {
+   "rule": "year_mismatch",
+   "removed": 0,
+   "of": 48538713,
+   "why": "timestamp outside the file's calendar year (SGT)"
+  },
+  {
+   "rule": "negative",
+   "removed": 0,
+   "of": 48538713,
+   "why": "negative rainfall"
+  },
+  {
+   "rule": "implausible",
+   "removed": 0,
+   "of": 48538713,
+   "why": "more than 50 mm in 5 minutes"
+  },
+  {
+   "rule": "snap",
+   "adjusted": 1775327,
+   "of": 48538713,
+   "removed": 0,
+   "max_shift_seconds": 1,
+   "why": "timestamp moved to the nearest 5-minute slot end"
+  },
+  {
+   "rule": "snap_year_cross",
+   "removed": 0,
+   "of": 48538713,
+   "why": "snapping moved the slot into another year"
+  },
+  {
+   "rule": "duplicate",
+   "removed": 85,
+   "of": 48538713,
+   "why": "second or later reading for the same station and slot",
+   "slots_with_conflicting_values": 0
+  }
+ ],
+ "implausible_mm": 50.0,
+ "stations": 91,
+ "stations_with_moved_coords": 1
+}

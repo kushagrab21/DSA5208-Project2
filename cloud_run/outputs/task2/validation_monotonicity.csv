@@ -1,0 +1,10 @@
+model,adjacent_threshold_pairs,pairs_where_p_rises,share_rises,max_rise
+baseline_climatology,3571038,0,0.0,0.0
+baseline_persistence,3571038,0,0.0,-0.0019947370913243685
+A_lr__regParam0.0001_elasticNetParam0,3571038,0,0.0,-0.00038690019811626897
+A_lr__regParam0.001_elasticNetParam0,3571038,0,0.0,-0.00039295877307765625
+A_gbt__maxDepth5_maxIter60_stepSize0.1,3571038,2406,0.000673753681702631,0.08452262564827884
+B_lr__regParam0.0001_elasticNetParam0,3571038,0,0.0,-1.0945399325779093e-06
+B_lr__regParam0.001_elasticNetParam0,3571038,0,0.0,-3.2799204292555117e-06
+B_gbt__maxDepth5_maxIter80_stepSize0.1,3571038,22620,0.006334292718251668,0.5382437666019327
+B_gbt__maxDepth7_maxIter80_stepSize0.1,3571038,30645,0.00858153847704785,0.6999025463880174

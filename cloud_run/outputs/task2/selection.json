@@ -1,0 +1,64 @@
+{
+ "plan_sha256": "fd017e8e1abb21f721d274b2e711ac31bf3ab4f8998d442fbbb210f2897486db",
+ "rule": {
+  "data": "validation years only",
+  "metric": "weighted log loss pooled over the threshold grid (lower is better)",
+  "tie_break": "AUC-PR"
+ },
+ "A": {
+  "chosen": "A_lr__regParam0.001_elasticNetParam0",
+  "estimator": "LogisticRegression",
+  "params": {
+   "regParam": 0.001,
+   "elasticNetParam": 0.0
+  },
+  "validation_log_loss": 0.09594911249067338,
+  "validation_auc_pr": 0.08457706953546405,
+  "validation_auc_roc": 0.7974911008982892,
+  "path": "../8876597c19754fdaa7e2e1b69e55946a/gs:/dsa5208-p2-rain-kb-dsa5208-p2/p2/runs-20261017T174507/models/model_A",
+  "candidates": {
+   "A_lr__regParam0.0001_elasticNetParam0": {
+    "log_loss": 0.09602925747262589,
+    "auc_pr": 0.08241153244805483
+   },
+   "A_lr__regParam0.001_elasticNetParam0": {
+    "log_loss": 0.09594911249067338,
+    "auc_pr": 0.08457706953546405
+   },
+   "A_gbt__maxDepth5_maxIter60_stepSize0.1": {
+    "log_loss": 0.10072280056445107,
+    "auc_pr": 0.09795592060452629
+   }
+  }
+ },
+ "B": {
+  "chosen": "B_lr__regParam0.0001_elasticNetParam0",
+  "estimator": "LogisticRegression",
+  "params": {
+   "regParam": 0.0001,
+   "elasticNetParam": 0.0
+  },
+  "validation_log_loss": 0.04767369918293348,
+  "validation_auc_pr": 0.6676928125566957,
+  "validation_auc_roc": 0.963393629410407,
+  "path": "../8876597c19754fdaa7e2e1b69e55946a/gs:/dsa5208-p2-rain-kb-dsa5208-p2/p2/runs-20261017T174507/models/model_B",
+  "candidates": {
+   "B_lr__regParam0.0001_elasticNetParam0": {
+    "log_loss": 0.04767369918293348,
+    "auc_pr": 0.6676928125566957
+   },
+   "B_lr__regParam0.001_elasticNetParam0": {
+    "log_loss": 0.047918258789065325,
+    "auc_pr": 0.6633195040223986
+   },
+   "B_gbt__maxDepth5_maxIter80_stepSize0.1": {
+    "log_loss": 0.051044216578762215,
+    "auc_pr": 0.7274536996530407
+   },
+   "B_gbt__maxDepth7_maxIter80_stepSize0.1": {
+    "log_loss": 0.05069872020612374,
+    "auc_pr": 0.7298160141222055
+   }
+  }
+ }
+}
